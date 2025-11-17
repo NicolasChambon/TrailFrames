@@ -22,6 +22,7 @@ export default defineConfig([
       import: eslintPluginImport,
     },
     rules: {
+      "no-console": ["error", { allow: ["error"] }],
       "react/jsx-sort-props": [
         "warn",
         {

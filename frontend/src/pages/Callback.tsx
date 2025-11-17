@@ -1,3 +1,65 @@
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import useSWR from "swr";
+import { Spinner } from "@/components/ui/spinner";
+import { TypographyH2 } from "@/components/ui/typographyH2";
+import { TypographyP } from "@/components/ui/typographyP";
+import { fetcher } from "@/lib/api";
+
 export default function Callback() {
-  return <h2>Callback</h2>;
+  const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+  const code = searchParams.get("code");
+  const errorParam = searchParams.get("error");
+
+  const { data, error, isLoading } = useSWR(
+    code ? `/auth/strava/callback?code=${code}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+    }
+  );
+
+  useEffect(() => {
+    if (errorParam || !code || error) {
+      setTimeout(() => navigate("/"), 3000);
+      return;
+    }
+
+    if (data?.success) {
+      localStorage.setItem("userId", data.userId);
+      navigate("/pictures");
+    }
+  }, [data, error, code, errorParam, navigate]);
+
+  if (errorParam) {
+    return <ErrorState>Authorisation refusée.</ErrorState>;
+  }
+  if (!code) {
+    return <ErrorState>Code d'autorisation manquant.</ErrorState>;
+  }
+  if (error) {
+    return <ErrorState>Erreur lors de l'authentification.</ErrorState>;
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col justify-center items-center gap-4">
+      <Spinner className="w-12 h-12" />
+      <TypographyH2>
+        {isLoading ? "Connection en cours..." : "Redirection..."}
+      </TypographyH2>
+    </div>
+  );
+}
+
+function ErrorState({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col justify-center items-center gap-4">
+      <TypographyH2>{children}</TypographyH2>
+      <TypographyP>Redirection vers la page d'accueil...</TypographyP>
+    </div>
+  );
 }

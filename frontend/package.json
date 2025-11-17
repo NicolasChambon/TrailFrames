@@ -16,6 +16,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@tailwindcss/vite": "^4.1.17",
+    "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.553.0",
@@ -23,6 +24,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.5",
+    "swr": "^2.3.6",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17"
   },

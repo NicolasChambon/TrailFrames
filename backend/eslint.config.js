@@ -12,6 +12,7 @@ export default defineConfig([
       import: eslintPluginImport,
     },
     rules: {
+      "no-console": ["error", { allow: ["error", "info"] }],
       "import/order": [
         "warn",
         {

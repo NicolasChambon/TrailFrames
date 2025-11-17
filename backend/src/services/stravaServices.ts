@@ -43,4 +43,29 @@ export class StravaService {
 
     return response.data;
   }
+
+  async getActivities({
+    accessToken,
+    page = 1,
+    perPage = 200,
+  }: {
+    accessToken: string;
+    page?: number;
+    perPage?: number;
+  }) {
+    const response = await axios.get(
+      `${this.apiUrl}/api/v3/athlete/activities`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          page,
+          per_page: perPage,
+        },
+      }
+    );
+
+    return response.data;
+  }
 }

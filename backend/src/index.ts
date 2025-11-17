@@ -1,7 +1,8 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import authRoutes from "./routes/auth";
+import { errorHandler } from "./lib/errors";
+import routes from "./routes";
 
 dotenv.config({ path: ".env.development.local" });
 
@@ -17,12 +18,10 @@ app.use(
 
 app.use(express.json());
 
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok", message: "Backend is running" });
-});
+app.use(routes);
 
-app.use("/auth", authRoutes);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.info(`🚀 Server running on http://localhost:${PORT}`);
 });

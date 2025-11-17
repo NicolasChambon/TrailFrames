@@ -1,52 +1,27 @@
 import { Request, Response } from "express";
-import { prisma } from "@/lib/prisma";
-import { StravaService } from "@/services/stravaServices";
+import { z } from "zod";
+import { AuthService } from "@/services/authService";
 
-const stravaService = new StravaService();
+const authService = new AuthService();
 
 export class AuthController {
-  async getAuthUrl(_req: Request, res: Response) {
-    try {
-      const clientId = process.env.STRAVA_CLIENT_ID;
-      const redirectUri = `${process.env.FRONTEND_URL}/callback`;
-      const scope = "read,activity:read_all,profile:read_all";
-
-      const authUrl = `${process.env.STRAVA_API_URL}/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
-
-      res.status(200).json({ authUrl });
-    } catch (error) {
-      console.error("Error generating auth URL:", error);
-      res.status(500).json({ error: "Failed to generate auth URL" });
-    }
-  }
-
+  // GET /auth/strava/callback?code=AUTH_CODE
   async handleCallback(req: Request, res: Response) {
     try {
-      const { code } = req.query;
+      const querySchema = z.object({
+        code: z.string().min(1),
+      });
 
-      if (!code || typeof code !== "string") {
-        console.error("Missing or invalid authorization code");
-        return res
-          .status(400)
-          .json({ error: "Missing authauthorization code" });
+      const parseResult = querySchema.safeParse(req.query);
+
+      if (!parseResult.success) {
+        console.error("Zod validation error:", parseResult.error.message);
+        return res.status(400).json({ error: parseResult.error.message });
       }
 
-      const tokenData = await stravaService.exchangeCodeForToken(code);
+      const { code } = parseResult.data;
 
-      const user = await prisma.user.upsert({
-        where: { stravaUserId: tokenData.athlete.id },
-        update: {
-          accessToken: tokenData.access_token,
-          refreshToken: tokenData.refresh_token,
-          expiresAt: new Date(tokenData.expires_at * 1000),
-        },
-        create: {
-          stravaUserId: tokenData.athlete.id,
-          accessToken: tokenData.access_token,
-          refreshToken: tokenData.refresh_token,
-          expiresAt: new Date(tokenData.expires_at * 1000),
-        },
-      });
+      const user = await authService.authenticateWithStrava(code);
 
       res.status(200).json({
         success: true,
