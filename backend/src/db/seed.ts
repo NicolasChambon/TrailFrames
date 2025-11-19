@@ -13,7 +13,7 @@ async function main() {
       create: { name },
     });
   }
-  console.info("Seeded SportType table.");
+  console.info("SportType table seeded.");
 }
 
 main()

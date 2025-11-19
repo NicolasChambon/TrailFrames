@@ -8,14 +8,12 @@ dotenv.config({ path: ".env.development.local" });
 export class StravaService {
   private clientId: string;
   private clientSecret: string;
-  private stravaUrl: string;
   private apiUrl: string;
 
   constructor() {
     const clientId = process.env.STRAVA_CLIENT_ID;
     const clientSecret = process.env.STRAVA_CLIENT_SECRET;
-    const stravaUrl = process.env.STRAVA_API_URL;
-    const apiUrl = `${stravaUrl}/api/v3`;
+    const apiUrl = process.env.STRAVA_API_URL;
 
     if (!clientId || !clientSecret) {
       throw new BadRequestError(
@@ -25,7 +23,6 @@ export class StravaService {
 
     this.clientId = clientId;
     this.clientSecret = clientSecret;
-    this.stravaUrl = stravaUrl || "https://www.strava.com";
     this.apiUrl = apiUrl || "https://www.strava.com/api/v3";
   }
 
@@ -49,7 +46,7 @@ export class StravaService {
     page?: number;
     perPage?: number;
   }): Promise<SummaryActivity[]> {
-    const response = await axios.get(`${this.stravaUrl}/athlete/activities`, {
+    const response = await axios.get(`${this.apiUrl}/athlete/activities`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

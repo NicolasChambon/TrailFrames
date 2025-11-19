@@ -21,9 +21,9 @@ export class ActivitiesController {
 
       const { userId } = parseResult.data;
 
-      const result = await activitiesService.createAllActivities(userId);
+      await activitiesService.createAllActivities(userId);
 
-      res.status(200).json({ success: true, data: result });
+      res.status(200).json({ success: true });
     } catch (error) {
       next(error);
     }

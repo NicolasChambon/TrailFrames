@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "stravaUserId" INTEGER NOT NULL,
+    "stravaUserId" BIGINT NOT NULL,
     "accessToken" TEXT NOT NULL,
     "refreshToken" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
@@ -14,11 +14,11 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Activity" (
     "id" TEXT NOT NULL,
-    "stravaActivityId" INTEGER NOT NULL,
+    "stravaActivityId" BIGINT NOT NULL,
     "userId" TEXT NOT NULL,
-    "stravaUserId" INTEGER NOT NULL,
+    "stravaUserId" BIGINT NOT NULL,
     "stravaExternalId" TEXT NOT NULL,
-    "stravaUploadId" INTEGER NOT NULL,
+    "stravaUploadId" BIGINT NOT NULL,
     "name" TEXT NOT NULL,
     "distance" DOUBLE PRECISION NOT NULL,
     "movingTime" INTEGER NOT NULL,
@@ -38,8 +38,8 @@ CREATE TABLE "Activity" (
     "athleteCount" INTEGER NOT NULL,
     "photoCount" INTEGER NOT NULL,
     "totalPhotoCount" INTEGER NOT NULL,
-    "polyline" TEXT NOT NULL,
-    "summaryPolyline" TEXT NOT NULL,
+    "polyline" TEXT,
+    "summaryPolyline" TEXT,
     "trainer" BOOLEAN NOT NULL,
     "commute" BOOLEAN NOT NULL,
     "manual" BOOLEAN NOT NULL,

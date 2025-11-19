@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id             String    @id @default(cuid())
-  stravaUserId   Int       @unique
+  stravaUserId   BigInt    @unique
   accessToken    String
   refreshToken   String
   expiresAt      DateTime
@@ -28,19 +28,19 @@ model User {
 
 model Activity {
   id                    String    @id @default(cuid())
-  stravaActivityId      Int       @unique
+  stravaActivityId      BigInt    @unique
   userId                String
   user                  User      @relation(fields: [userId], references: [id])
-  stravaUserId          Int
-  stravaExternalId      String
-  stravaUploadId        Int
+  stravaUserId          BigInt
+  stravaExternalId      String?
+  stravaUploadId        BigInt?
   name                  String
   distance              Float
   movingTime            Int
   elapsedTime           Int
   totalElevationGain    Float
-  elevHigh              Float
-  elevLow               Float
+  elevHigh              Float?
+  elevLow               Float?
   sportTypeId           String
   sportType             SportType @relation(fields: [sportTypeId], references: [id])
   startDate             DateTime
@@ -54,23 +54,23 @@ model Activity {
   athleteCount          Int
   photoCount            Int
   totalPhotoCount       Int
-  polyline              String
-  summaryPolyline       String
+  polyline              String?
+  summaryPolyline       String?
   trainer               Boolean
   commute               Boolean
   manual                Boolean
   private               Boolean
   flagged               Boolean
-  workoutType           Int
-  stravaUploadIdStr     String
+  workoutType           Int?
+  stravaUploadIdStr     String?
   averageSpeed          Float
   maxSpeed              Float
   hasKudoed             Boolean
-  hideFromHome          Boolean
+  hideFromHome          Boolean?
   gearId                String
   kilojoules            Float
   averageWatts          Int
-  deviceWatts           Boolean
+  deviceWatts           Boolean?
   maxWatts              Int
   weightedAverageWatts  Int
   createdAt             DateTime  @default(now())

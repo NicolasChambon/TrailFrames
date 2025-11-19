@@ -23,6 +23,7 @@ export class AuthController {
 
       const user = await authService.authenticateWithStrava(code);
 
+      console.info(`User authenticated: ${user.id}`);
       res.status(200).json({
         success: true,
         userId: user.id,
