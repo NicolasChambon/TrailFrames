@@ -7,7 +7,7 @@ const activitiesController = new ActivitiesController();
 
 // PUT /activities/:userId
 router.put("/:userId", (req, res, next) =>
-  activitiesController.registerAllActivities(req, res, next)
+  activitiesController.syncActivities(req, res, next)
 );
 
 export default router;

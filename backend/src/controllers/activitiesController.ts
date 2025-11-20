@@ -7,7 +7,7 @@ const activitiesService = new AntivitiesService();
 
 export class ActivitiesController {
   // PUT /activities/:userId
-  async registerAllActivities(req: Request, res: Response, next: NextFunction) {
+  async syncActivities(req: Request, res: Response, next: NextFunction) {
     try {
       const paramsSchema = z.object({
         userId: z.string().min(1),

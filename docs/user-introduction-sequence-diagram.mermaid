@@ -1,0 +1,20 @@
+```mermaid
+ sequenceDiagram
+    participant TrailFramesFrontend as TrailFrames Frontend
+    participant TrailFramesBackend as TrailFrames Backend
+    participant TrailFramesDatabase as TrailsFrames Database
+    participant StravaAppLoginPage as StravaApp LoginPage
+    participant StravaAPIAppOAuthPage as Strava API app <br/> OAuthPage
+    participant StravaPublicAPI
+
+    TrailFramesFrontend->>StravaAppLoginPage: If user is not connected to Strava
+    StravaAppLoginPage-->>TrailFramesFrontend: Login successfull
+    TrailFramesFrontend->>StravaAPIAppOAuthPage: Redirect toward using
+    StravaAPIAppOAuthPage-->>TrailFramesFrontend: Sendback AUTH_CODE
+    TrailFramesFrontend->>TrailFramesBackend: GET /auth/strava/callback?code=AUTH_CODE
+    TrailFramesBackend->>StravaPublicAPI: Request token and stravaUserId with AUTH_CODE and<br/>Strava API app Client Id and Client Secret
+    StravaPublicAPI-->>TrailFramesBackend: Sendback token and stravaUserId
+    TrailFramesBackend->>TrailFramesDatabase: Create TrailFrames User with token and stravaUserId
+    TrailFramesDatabase-->>TrailFramesBackend: SendBack User object
+    TrailFramesBackend->>TrailFramesFrontend: SendBack TrailFramesUserId
+```

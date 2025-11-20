@@ -34,14 +34,14 @@ export function ApiAppStep() {
           <li>Catégorie : Outil d'importation de données</li>
           <li>Club : [None]</li>
           {/* TODO: update URL */}
-          <li>Site web : https://your-strava.vercel.app/</li>
+          <li>Site web : https://TrailFrames.vercel.app/</li>
           <li>
             Description de l'application : Application pour visualiser mes
             photos Strava.
           </li>
           {/* TODO: update URL */}
           <li>
-            Domaine du rappel pour l'autorisation : your-strava.vercel.app/
+            Domaine du rappel pour l'autorisation : TrailFrames.vercel.app/
           </li>
         </ul>
       </DialogStackDescription>

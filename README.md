@@ -1,4 +1,4 @@
-# Your Strava
+# TrailFrames
 
 Application to visualize and manage your Strava activities with custom features.
 
@@ -22,8 +22,8 @@ This project is organized as a monorepo with two main applications:
 1. Clone the repository
 
 ```bash
-git clone https://github.com/NicolasChambon/your-strava.git
-cd your-strava
+git clone https://github.com/NicolasChambon/TrailFrames.git
+cd TrailFrames
 ```
 
 2. Install backend dependencies
@@ -77,11 +77,6 @@ npm run dev
 ```bash
 npm run dev
 ```
-
-## 📚 Documentation
-
-- [Backend Documentation](./backend/README.md)
-- [Frontend Documentation](./frontend/README.md)
 
 ## 🛠️ Tech Stack
 
