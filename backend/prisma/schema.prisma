@@ -67,23 +67,23 @@ enum SportType {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  stravaUserId   BigInt    @unique
-  accessToken    String
-  refreshToken   String
-  expiresAt      DateTime
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  stravaAthleteId    BigInt    @unique
+  accessToken        String
+  refreshToken       String
+  expiresAt          DateTime
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  activities     Activity[]
+  activities         Activity[]
 }
 
 model Activity {
   id                    String    @id @default(cuid())
   stravaActivityId      BigInt    @unique
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id])
-  stravaUserId          BigInt
+  trailFramesUserId     String
+  user                  User      @relation(fields: [trailFramesUserId], references: [id])
+  stravaAthleteId       BigInt
   stravaUploadId        BigInt?
   name                  String
   distance              Float

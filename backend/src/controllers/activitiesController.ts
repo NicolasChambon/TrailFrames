@@ -6,11 +6,11 @@ import { AntivitiesService } from "@/services/activitiesService";
 const activitiesService = new AntivitiesService();
 
 export class ActivitiesController {
-  // PUT /activities/:userId
+  // PUT /activities/:trailFramesUserId
   async syncActivities(req: Request, res: Response, next: NextFunction) {
     try {
       const paramsSchema = z.object({
-        userId: z.string().min(1),
+        trailFramesUserId: z.string().min(1),
       });
 
       const parseResult = paramsSchema.safeParse(req.params);
@@ -19,9 +19,9 @@ export class ActivitiesController {
         throw new BadRequestError(parseResult.error.message);
       }
 
-      const { userId } = parseResult.data;
+      const { trailFramesUserId } = parseResult.data;
 
-      await activitiesService.createAllActivities(userId);
+      await activitiesService.createAllActivities(trailFramesUserId);
 
       res.status(200).json({ success: true });
     } catch (error) {

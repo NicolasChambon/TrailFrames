@@ -4,7 +4,7 @@ CREATE TYPE "SportType" AS ENUM ('AlpineSki', 'BackcountrySki', 'Badminton', 'Ca
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "stravaUserId" BIGINT NOT NULL,
+    "stravaAthleteId" BIGINT NOT NULL,
     "accessToken" TEXT NOT NULL,
     "refreshToken" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
@@ -18,8 +18,8 @@ CREATE TABLE "User" (
 CREATE TABLE "Activity" (
     "id" TEXT NOT NULL,
     "stravaActivityId" BIGINT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "stravaUserId" BIGINT NOT NULL,
+    "trailFramesUserId" TEXT NOT NULL,
+    "stravaAthleteId" BIGINT NOT NULL,
     "stravaUploadId" BIGINT,
     "name" TEXT NOT NULL,
     "distance" DOUBLE PRECISION NOT NULL,
@@ -62,10 +62,10 @@ CREATE TABLE "Activity" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_stravaUserId_key" ON "User"("stravaUserId");
+CREATE UNIQUE INDEX "User_stravaAthleteId_key" ON "User"("stravaAthleteId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Activity_stravaActivityId_key" ON "Activity"("stravaActivityId");
 
 -- AddForeignKey
-ALTER TABLE "Activity" ADD CONSTRAINT "Activity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Activity" ADD CONSTRAINT "Activity_trailFramesUserId_fkey" FOREIGN KEY ("trailFramesUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

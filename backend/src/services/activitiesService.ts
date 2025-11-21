@@ -7,14 +7,14 @@ import { StravaService } from "./stravaServices";
 const stravaService = new StravaService();
 
 export class AntivitiesService {
-  async createAllActivities(userId: string) {
-    const user = await this.getUserOrThrow(userId);
+  async createAllActivities(trailFramesUserId: string) {
+    const user = await this.getUserOrThrow(trailFramesUserId);
     const allActivities = await this.fetchAllStravaActivities(user.accessToken);
     await this.saveActivitiesToDb(user, allActivities);
   }
 
-  private async getUserOrThrow(userId: string) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+  private async getUserOrThrow(trailFramesUserId: string) {
+    const user = await prisma.user.findUnique({ where: { id: trailFramesUserId } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -89,8 +89,8 @@ export class AntivitiesService {
 
     const activitiesData = activitiesToCreate.map((activity) => ({
       stravaActivityId: activity.id,
-      userId: user.id,
-      stravaUserId: activity.athlete.id,
+      trailFramesUserId: user.id,
+      stravaAthleteId: activity.athlete.id,
       stravaUploadId: activity.upload_id ?? null,
       name: activity.name,
       distance: activity.distance,

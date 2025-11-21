@@ -5,8 +5,8 @@ const router = Router();
 
 const activitiesController = new ActivitiesController();
 
-// PUT /activities/:userId
-router.put("/:userId", (req, res, next) =>
+// PUT /activities/:trailFramesUserId
+router.put("/:trailFramesUserId", (req, res, next) =>
   activitiesController.syncActivities(req, res, next)
 );
 

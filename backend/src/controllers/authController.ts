@@ -26,7 +26,7 @@ export class AuthController {
       console.info(`User authenticated: ${user.id}`);
       res.status(200).json({
         success: true,
-        userId: user.id,
+        trailFramesUserId: user.id,
         message: "Authentication successful",
       });
     } catch (error) {

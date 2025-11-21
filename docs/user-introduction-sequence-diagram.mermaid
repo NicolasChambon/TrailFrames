@@ -12,9 +12,9 @@
     TrailFramesFrontend->>StravaAPIAppOAuthPage: Redirect toward using
     StravaAPIAppOAuthPage-->>TrailFramesFrontend: Sendback AUTH_CODE
     TrailFramesFrontend->>TrailFramesBackend: GET /auth/strava/callback?code=AUTH_CODE
-    TrailFramesBackend->>StravaPublicAPI: Request token and stravaUserId with AUTH_CODE and<br/>Strava API app Client Id and Client Secret
-    StravaPublicAPI-->>TrailFramesBackend: Sendback token and stravaUserId
-    TrailFramesBackend->>TrailFramesDatabase: Create TrailFrames User with token and stravaUserId
-    TrailFramesDatabase-->>TrailFramesBackend: SendBack User object
-    TrailFramesBackend->>TrailFramesFrontend: SendBack TrailFramesUserId
+    TrailFramesBackend->>StravaPublicAPI: Request token and stravaAthleteId with AUTH_CODE and<br/>Strava API app Client Id and Client Secret
+    StravaPublicAPI-->>TrailFramesBackend: Sendback token and stravaAthleteId
+    TrailFramesBackend->>TrailFramesDatabase: Create TrailFrames User with token and stravaAthleteId
+    TrailFramesDatabase-->>TrailFramesBackend: Send back TrailFrames User object
+    TrailFramesBackend->>TrailFramesFrontend: SendBack TrailFrames UserId
 ```

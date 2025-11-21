@@ -31,7 +31,7 @@ export default function Callback() {
     }
 
     if (data?.success) {
-      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("trailFramesUserId", data.trailFramesUserId);
       navigate("/pictures");
     }
   }, [data, error, code, errorParam, navigate]);

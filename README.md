@@ -49,6 +49,10 @@ npx prisma migrate dev --name init
 
 you can name your first migration "init"
 
+```bash
+npx prisma generate
+```
+
 5. Install frontend dependencies
 
 ```bash

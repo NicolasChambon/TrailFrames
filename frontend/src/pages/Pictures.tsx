@@ -5,17 +5,17 @@ import api from "@/lib/api";
 import { useMutation } from "@/lib/useMutation";
 
 export default function Pictures() {
-  const userId = localStorage.getItem("userId");
+  const trailFramesUserId = localStorage.getItem("trailFramesUserId");
 
   const {
     mutate: fetchActivities,
     isLoading,
     error,
     data,
-  } = useMutation(() => api.put(`/activities/${userId}`));
+  } = useMutation(() => api.put(`/activities/${trailFramesUserId}`));
 
   const handleFetchActivities = async () => {
-    if (!userId) return;
+    if (!trailFramesUserId) return;
     await fetchActivities();
   };
 
@@ -23,7 +23,7 @@ export default function Pictures() {
     <div className="min-h-screen flex flex-col justify-center items-center gap-4">
       <h2 className="text-2xl font-bold">Your Strava Activities</h2>
 
-      <Button disabled={isLoading || !userId} onClick={handleFetchActivities}>
+      <Button disabled={isLoading || !trailFramesUserId} onClick={handleFetchActivities}>
         {isLoading ? (
           <>
             <Spinner className="w-4 h-4 mr-2" />

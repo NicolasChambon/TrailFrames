@@ -32,7 +32,8 @@ export function errorHandler(
 ) {
   console.error("Error:", {
     path: req.path,
-    error: error.message,
+    ...error,
+    message: error.message,
     stack: error.stack,
     timestamp: new Date().toISOString(),
   });
