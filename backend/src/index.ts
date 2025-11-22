@@ -5,7 +5,7 @@ import { errorHandler } from "./lib/errors";
 import routes from "./routes";
 
 const app = express();
-const PORT = process.env.BACKEND_PORT;
+const port = process.env.PORT || 4000;
 
 const allowedOrigins = [
   process.env.FRONTEND_DEV_URL,
@@ -31,6 +31,6 @@ app.use(routes);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.info(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.info(`🚀 Server running on http://localhost:${port}`);
 });
