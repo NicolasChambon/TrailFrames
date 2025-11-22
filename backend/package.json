@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "build": "node esbuild.config.js",
     "start": "node dist/index.js",
-    "migrate:deploy": "tsx node_modules/.bin/prisma migrate deploy"
+    "migrate:deploy": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
@@ -25,8 +25,6 @@
     "express": "^5.1.0",
     "pg": "^8.16.3",
     "prisma": "^7.0.0",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -39,6 +37,8 @@
     "eslint-plugin-import": "^2.32.0",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4"
   }
 }
