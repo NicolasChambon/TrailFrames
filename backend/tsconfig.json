@@ -27,6 +27,6 @@
     "erasableSyntaxOnly": false,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/**/*", "prisma.config.ts"],
+  "include": ["src/**/*", "prisma/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

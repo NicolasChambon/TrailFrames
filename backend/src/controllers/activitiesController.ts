@@ -4,7 +4,6 @@ import { BadRequestError } from "@/lib/errors";
 import { AntivitiesService } from "@/services/activitiesService";
 
 const activitiesService = new AntivitiesService();
-
 export class ActivitiesController {
   // PUT /activities/:trailFramesUserId
   async syncActivities(req: Request, res: Response, next: NextFunction) {
