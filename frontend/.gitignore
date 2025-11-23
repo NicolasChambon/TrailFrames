@@ -24,3 +24,5 @@ dist
 dist-ssr
 *.local
 .env
+.env.staging
+.env.production

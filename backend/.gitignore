@@ -24,5 +24,6 @@ dist
 build
 .env
 .env.staging
+.env.production
 *.local
 /src/generated/prisma
