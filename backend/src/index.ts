@@ -11,7 +11,7 @@ const allowedOrigins = [
   process.env.FRONTEND_DEV_URL,
   process.env.FRONTEND_STAGING_URL,
   process.env.FRONTEND_PROD_URL,
-].filter(Boolean); // retire les valeurs undefined/vides
+].filter(Boolean);
 
 app.use(
   cors({
