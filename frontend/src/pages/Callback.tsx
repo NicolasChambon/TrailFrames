@@ -15,7 +15,7 @@ export default function Callback() {
   const errorParam = searchParams.get("error");
 
   const { data, error, isLoading } = useSWR<AuthCallbackResponse, Error>(
-    code ? `/auth/strava/callback?code=${code}` : null,
+    code && !errorParam ? `/auth/strava/callback?code=${code}` : null,
     fetcher,
     {
       revalidateOnFocus: false,

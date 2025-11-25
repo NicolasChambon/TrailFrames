@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import z from "zod";
 import { BadRequestError } from "@/lib/errors";
-import { AntivitiesService } from "@/services/activitiesService";
+import { ActivitiesService } from "@/services/activitiesService";
 
-const activitiesService = new AntivitiesService();
+const activitiesService = new ActivitiesService();
 export class ActivitiesController {
   // PUT /activities/:trailFramesUserId
   async syncActivities(req: Request, res: Response, next: NextFunction) {

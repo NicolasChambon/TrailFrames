@@ -6,7 +6,7 @@ import { StravaService } from "./stravaServices";
 
 const stravaService = new StravaService();
 
-export class AntivitiesService {
+export class ActivitiesService {
   async createAllActivities(trailFramesUserId: string) {
     const user = await this.getUserOrThrow(trailFramesUserId);
     const allActivities = await this.fetchAllStravaActivities(user.accessToken);
