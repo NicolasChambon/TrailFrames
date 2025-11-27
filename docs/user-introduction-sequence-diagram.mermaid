@@ -7,27 +7,33 @@
     participant StravaAPIAppOAuthPage as Strava API app <br/> OAuthPage
     participant StravaPublicAPI
 
-    Note over TrailFramesFrontend, StravaPublicAPI: First Connexion
+    Note over TrailFramesFrontend, StravaPublicAPI: First Connexion.
 
     TrailFramesFrontend->>StravaAppLoginPage: If user is not connected to Strava
     StravaAppLoginPage-->>TrailFramesFrontend: Login successfull
-    TrailFramesFrontend->>StravaAPIAppOAuthPage: Redirect toward using
+    TrailFramesFrontend->>StravaAPIAppOAuthPage: Redirect toward using Strava API APP Client Id
     StravaAPIAppOAuthPage-->>TrailFramesFrontend: Sendback AUTH_CODE
+
+    Note over TrailFramesFrontend, StravaPublicAPI: AUTH_CODE is specific to the strava user account currently logged in. It is temporary and can be used only once.
+
     TrailFramesFrontend->>TrailFramesBackend: GET /auth/strava/callback?code=AUTH_CODE
-    TrailFramesBackend->>StravaPublicAPI: Request token and stravaAthleteId with AUTH_CODE and<br/>Strava API app Client Id and Client Secret
-    StravaPublicAPI-->>TrailFramesBackend: Sendback token and stravaAthleteId
-    TrailFramesBackend->>TrailFramesDatabase: Create TrailFrames User with token and stravaAthleteId
+    TrailFramesBackend->>StravaPublicAPI: Request stravaAccessToken and stravaAthleteId with AUTH_CODE and<br/>Strava API app Client Id and Client Secret
+    StravaPublicAPI-->>TrailFramesBackend: Sendback stravaAccessToken and stravaAthleteId
+
+    Note over TrailFramesFrontend, StravaPublicAPI: The stravaAccessToken is specific to the strava user account currently logged in.
+
+    TrailFramesBackend->>TrailFramesDatabase: Create TrailFrames User with stravaAccessToken and stravaAthleteId
     TrailFramesDatabase-->>TrailFramesBackend: Send back TrailFrames User object
     TrailFramesBackend->>TrailFramesFrontend: SendBack TrailFrames UserId
 
-   Note over TrailFramesFrontend, StravaPublicAPI: Fetching Strava athlete activities
+    Note over TrailFramesFrontend, StravaPublicAPI: Fetching Strava athlete activities.
 
-   TrailFramesFrontend->>TrailFramesBackend: PUT /activities/:trailFramesUserId
-   TrailFramesBackend->>TrailFramesDatabase: Request User access token with trailFramesUserId
-   TrailFramesDatabase-->>TrailFramesBackend: Send back access token
-   TrailFramesBackend->>StravaPublicAPI: Request athlete activities with accessToken
-   StravaPublicAPI-->>TrailFramesBackend: Send back athelte activities
-   TrailFramesBackend->>TrailFramesDatabase: Save activities in database
-   TrailFramesDatabase-->>TrailFramesBackend: Send back successful message
-   TrailFramesBackend->> TrailFramesFrontend: Send back successful message
+    TrailFramesFrontend->>TrailFramesBackend: PUT /activities/:trailFramesUserId
+    TrailFramesBackend->>TrailFramesDatabase: Request stravaAccessToken with trailFramesUserId
+    TrailFramesDatabase-->>TrailFramesBackend: Send back stravaAccessToken
+    TrailFramesBackend->>StravaPublicAPI: Request athlete activities with stravaAccessToken
+    StravaPublicAPI-->>TrailFramesBackend: Send back athelte activities
+    TrailFramesBackend->>TrailFramesDatabase: Save activities in database
+    TrailFramesDatabase-->>TrailFramesBackend: Send back successful message
+    TrailFramesBackend->>TrailFramesFrontend: Send back successful message
 ```

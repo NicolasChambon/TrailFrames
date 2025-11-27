@@ -1,3 +1,5 @@
+import { User } from "@/generated/prisma";
+import { NotFoundError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { StravaService } from "./stravaServices";
 
@@ -57,6 +59,40 @@ export class AuthService {
         follower: tokenData.athlete.follower,
       },
     });
+
+    return user;
+  }
+
+  async getAuthenticatedUser(trailFramesUserId: string): Promise<User> {
+    const user = await prisma.user.findUnique({
+      where: { id: trailFramesUserId },
+    });
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    const bufferTime = 5 * 60 * 1000; // 5 min in ms
+    const isTokenExpiringSoon =
+      new Date().getTime() + bufferTime > user.stravaTokenExpiresAt.getTime();
+
+    if (isTokenExpiringSoon) {
+      const tokenData = await stravaService.refreshAccessToken(
+        user.stravaRefreshToken
+      );
+
+      const updatedUser = await prisma.user.update({
+        where: { id: trailFramesUserId },
+        data: {
+          stravaAccessToken: tokenData.access_token,
+          stravaRefreshToken: tokenData.refresh_token,
+          stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
+        },
+      });
+
+      console.info(`Token refreshed for user: ${updatedUser.id}`);
+      return updatedUser;
+    }
 
     return user;
   }

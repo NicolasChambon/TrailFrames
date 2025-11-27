@@ -35,6 +35,19 @@ export class StravaService {
     return response.data;
   }
 
+  async refreshAccessToken(
+    stravaRefreshToken: string
+  ): Promise<StravaTokenResponse> {
+    const response = await axios.post(`${this.apiUrl}/oauth/token`, {
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      refresh_token: stravaRefreshToken,
+      grant_type: "refresh_token",
+    });
+
+    return response.data;
+  }
+
   async getActivities({
     stravaAccessToken,
     page = 1,

@@ -1,31 +1,19 @@
 import { User } from "@/generated/prisma";
-import { NotFoundError, UnauthorizedError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { SummaryActivity } from "@/types/strava";
+import { AuthService } from "./authService";
 import { StravaService } from "./stravaServices";
 
 const stravaService = new StravaService();
+const authService = new AuthService();
 
 export class ActivitiesService {
   async createAllActivities(trailFramesUserId: string) {
-    const user = await this.getUserOrThrow(trailFramesUserId);
+    const user = await authService.getAuthenticatedUser(trailFramesUserId);
     const allActivities = await this.fetchAllStravaActivities(
       user.stravaAccessToken
     );
     await this.saveActivitiesToDb(user, allActivities);
-  }
-
-  private async getUserOrThrow(trailFramesUserId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: trailFramesUserId },
-    });
-    if (!user) {
-      throw new NotFoundError("User not found");
-    }
-    if (new Date() > user.stravaTokenExpiresAt) {
-      throw new UnauthorizedError("Access token expired");
-    }
-    return user;
   }
 
   private async fetchAllStravaActivities(
