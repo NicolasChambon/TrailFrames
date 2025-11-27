@@ -36,17 +36,17 @@ export class StravaService {
   }
 
   async getActivities({
-    accessToken,
+    stravaAccessToken,
     page = 1,
     perPage = 200,
   }: {
-    accessToken: string;
+    stravaAccessToken: string;
     page?: number;
     perPage?: number;
   }): Promise<SummaryActivity[]> {
     const response = await axios.get(`${this.apiUrl}/athlete/activities`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${stravaAccessToken}`,
       },
       params: {
         page,

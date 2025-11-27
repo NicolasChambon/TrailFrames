@@ -10,9 +10,9 @@ export class AuthService {
     const user = await prisma.user.upsert({
       where: { stravaAthleteId: tokenData.athlete.id },
       update: {
-        accessToken: tokenData.access_token,
-        refreshToken: tokenData.refresh_token,
-        expiresAt: new Date(tokenData.expires_at * 1000),
+        stravaAccessToken: tokenData.access_token,
+        stravaRefreshToken: tokenData.refresh_token,
+        stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
         username: tokenData.athlete.username,
         firstName: tokenData.athlete.firstname,
         lastName: tokenData.athlete.lastname,
@@ -34,9 +34,9 @@ export class AuthService {
       },
       create: {
         stravaAthleteId: tokenData.athlete.id,
-        accessToken: tokenData.access_token,
-        refreshToken: tokenData.refresh_token,
-        expiresAt: new Date(tokenData.expires_at * 1000),
+        stravaAccessToken: tokenData.access_token,
+        stravaRefreshToken: tokenData.refresh_token,
+        stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
         username: tokenData.athlete.username,
         firstName: tokenData.athlete.firstname,
         lastName: tokenData.athlete.lastname,

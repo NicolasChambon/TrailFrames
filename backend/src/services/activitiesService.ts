@@ -9,7 +9,9 @@ const stravaService = new StravaService();
 export class ActivitiesService {
   async createAllActivities(trailFramesUserId: string) {
     const user = await this.getUserOrThrow(trailFramesUserId);
-    const allActivities = await this.fetchAllStravaActivities(user.accessToken);
+    const allActivities = await this.fetchAllStravaActivities(
+      user.stravaAccessToken
+    );
     await this.saveActivitiesToDb(user, allActivities);
   }
 
@@ -20,14 +22,14 @@ export class ActivitiesService {
     if (!user) {
       throw new NotFoundError("User not found");
     }
-    if (new Date() > user.expiresAt) {
+    if (new Date() > user.stravaTokenExpiresAt) {
       throw new UnauthorizedError("Access token expired");
     }
     return user;
   }
 
   private async fetchAllStravaActivities(
-    accessToken: string
+    stravaAccessToken: string
   ): Promise<SummaryActivity[]> {
     const allActivities: SummaryActivity[] = [];
 
@@ -37,7 +39,7 @@ export class ActivitiesService {
 
     while (shouldFetchMore) {
       const activities = await stravaService.getActivities({
-        accessToken,
+        stravaAccessToken,
         page,
         perPage,
       });
