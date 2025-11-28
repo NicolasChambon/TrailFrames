@@ -75,8 +75,8 @@ enum Sex {
 model User {
   id                    String    @id @default(cuid())
   stravaAthleteId       BigInt    @unique
-  stravaAccessToken     String
-  stravaRefreshToken    String
+  stravaAccessToken     String                          // Encrypted with AES-256-GCM
+  stravaRefreshToken    String                          // Encrypted with AES-256-GCM       
   stravaTokenExpiresAt  DateTime
   username              String?
   firstName             String

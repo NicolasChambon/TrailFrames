@@ -8,9 +8,9 @@ CREATE TYPE "Sex" AS ENUM ('M', 'F', 'O');
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "stravaAthleteId" BIGINT NOT NULL,
-    "accessToken" TEXT NOT NULL,
-    "refreshToken" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "stravaAccessToken" TEXT NOT NULL,
+    "stravaRefreshToken" TEXT NOT NULL,
+    "stravaTokenExpiresAt" TIMESTAMP(3) NOT NULL,
     "username" TEXT,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,

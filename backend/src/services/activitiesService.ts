@@ -1,5 +1,5 @@
-import { User } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
+import { AuthenticatedUser } from "@/types/auth";
 import { SummaryActivity } from "@/types/strava";
 import { AuthService } from "./authService";
 import { StravaService } from "./stravaServices";
@@ -50,7 +50,10 @@ export class ActivitiesService {
     return allActivities;
   }
 
-  private async saveActivitiesToDb(user: User, activities: SummaryActivity[]) {
+  private async saveActivitiesToDb(
+    user: AuthenticatedUser,
+    activities: SummaryActivity[]
+  ) {
     console.info(
       `Starting to save ${activities.length} activities to database`
     );
@@ -61,7 +64,7 @@ export class ActivitiesService {
       select: { stravaActivityId: true },
     });
     const existingActivityIds = new Set(
-      existingActivities.map((a) => a.stravaActivityId)
+      existingActivities.map((activity) => activity.stravaActivityId)
     );
 
     console.info(

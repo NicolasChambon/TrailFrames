@@ -1,6 +1,7 @@
-import { User } from "@/generated/prisma";
+import { decrypt, encrypt } from "@/lib/encryption";
 import { NotFoundError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
+import { AuthenticatedUser } from "@/types/auth";
 import { StravaService } from "./stravaServices";
 
 const stravaService = new StravaService();
@@ -12,8 +13,8 @@ export class AuthService {
     const user = await prisma.user.upsert({
       where: { stravaAthleteId: tokenData.athlete.id },
       update: {
-        stravaAccessToken: tokenData.access_token,
-        stravaRefreshToken: tokenData.refresh_token,
+        stravaAccessToken: encrypt(tokenData.access_token),
+        stravaRefreshToken: encrypt(tokenData.refresh_token),
         stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
         username: tokenData.athlete.username,
         firstName: tokenData.athlete.firstname,
@@ -36,8 +37,8 @@ export class AuthService {
       },
       create: {
         stravaAthleteId: tokenData.athlete.id,
-        stravaAccessToken: tokenData.access_token,
-        stravaRefreshToken: tokenData.refresh_token,
+        stravaAccessToken: encrypt(tokenData.access_token),
+        stravaRefreshToken: encrypt(tokenData.refresh_token),
         stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
         username: tokenData.athlete.username,
         firstName: tokenData.athlete.firstname,
@@ -63,7 +64,9 @@ export class AuthService {
     return user;
   }
 
-  async getAuthenticatedUser(trailFramesUserId: string): Promise<User> {
+  async getAuthenticatedUser(
+    trailFramesUserId: string
+  ): Promise<AuthenticatedUser> {
     const user = await prisma.user.findUnique({
       where: { id: trailFramesUserId },
     });
@@ -81,19 +84,29 @@ export class AuthService {
         user.stravaRefreshToken
       );
 
-      const updatedUser = await prisma.user.update({
+      await prisma.user.update({
         where: { id: trailFramesUserId },
         data: {
-          stravaAccessToken: tokenData.access_token,
-          stravaRefreshToken: tokenData.refresh_token,
+          stravaAccessToken: encrypt(tokenData.access_token),
+          stravaRefreshToken: encrypt(tokenData.refresh_token),
           stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
         },
       });
 
-      console.info(`Token refreshed for user: ${updatedUser.id}`);
-      return updatedUser;
+      console.info(`Token refreshed for user: ${user.id}`);
+
+      return {
+        ...user,
+        stravaAccessToken: tokenData.access_token,
+        stravaRefreshToken: tokenData.refresh_token,
+        stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
+      };
     }
 
-    return user;
+    return {
+      ...user,
+      stravaAccessToken: decrypt(user.stravaAccessToken),
+      stravaRefreshToken: decrypt(user.stravaRefreshToken),
+    };
   }
 }
