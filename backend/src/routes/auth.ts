@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { AuthController } from "@/controllers/authController";
+import { register, handleCallback } from "@/controllers/authController";
 
 const router = Router();
 
-const authController = new AuthController();
+// POST /auth/register
+router.post("/register", register);
 
 // GET /auth/strava/callback?code=AUTH_CODE
-router.get("/strava/callback", (req, res, next) =>
-  authController.handleCallback(req, res, next)
-);
+router.get("/strava/callback", handleCallback);
 
 export default router;

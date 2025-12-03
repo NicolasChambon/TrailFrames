@@ -17,7 +17,7 @@ export default defineConfig([
       "@typescript-eslint/no-unsafe-assignment": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { argsIgnorePattern: "^_" },
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       "import/order": [
         "warn",

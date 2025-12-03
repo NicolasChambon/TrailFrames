@@ -8,6 +8,6 @@ export function TypographyP({
   className?: string;
 }) {
   return (
-    <h2 className={cn("leading-7 not-first:mt-6", className)}>{children}</h2>
+    <p className={cn("leading-7 not-first:mt-6", className)}>{children}</p>
   );
 }

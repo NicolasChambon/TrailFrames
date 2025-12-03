@@ -20,10 +20,13 @@ export default function Pictures() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center gap-4">
+    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
       <h2 className="text-2xl font-bold">Your Strava Activities</h2>
 
-      <Button disabled={isLoading || !trailFramesUserId} onClick={handleFetchActivities}>
+      <Button
+        disabled={isLoading || !trailFramesUserId}
+        onClick={handleFetchActivities}
+      >
         {isLoading ? (
           <>
             <Spinner className="w-4 h-4 mr-2" />
@@ -40,6 +43,6 @@ export default function Pictures() {
           Activities fetched successfully!
         </TypographyP>
       )}
-    </div>
+    </main>
   );
 }
