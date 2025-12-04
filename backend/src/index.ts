@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import "dotenv/config";
@@ -25,6 +26,9 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(cookieParser());
+
 app.use(express.json());
 
 app.use(routes);

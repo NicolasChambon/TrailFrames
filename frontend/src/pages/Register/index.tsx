@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import LogoButton from "@/components/LogoButton";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,8 @@ import {
 import { ValidationMessage } from "@/pages/Register/ValidationMessage";
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -41,6 +43,15 @@ export default function Register() {
     error,
     data,
   } = useMutation(() => api.post("/auth/register", { email, password }));
+
+  useEffect(() => {
+    if (data && !error) {
+      const timer = setTimeout(() => {
+        navigate("/strava-sync");
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [data, error, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

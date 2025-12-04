@@ -1,8 +1,8 @@
 import argon2 from "argon2";
 import { decrypt, encrypt } from "@/lib/encryption";
-import { BadRequestError, NotFoundError } from "@/lib/errors";
+import { BadRequestError, NotFoundError, UnauthorizedError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
-import { RegisterInput } from "@/schemas/auth";
+import { LoginInput, RegisterInput } from "@/schemas/auth";
 import { AuthenticatedUser } from "@/types/auth";
 import { StravaService } from "./stravaServices";
 
@@ -109,5 +109,26 @@ export class AuthService {
       stravaAccessToken: decrypt(user.stravaAccessToken),
       stravaRefreshToken: decrypt(user.stravaRefreshToken),
     };
+  }
+
+  async loginUser(input: LoginInput) {
+    const email = input.email;
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || !user.password) {
+      throw new UnauthorizedError("Invalid email or password");
+    }
+
+    const isPasswordValid = await argon2.verify(user.password, input.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedError("Invalid email or password");
+    }
+
+    const { password: _, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
   }
 }

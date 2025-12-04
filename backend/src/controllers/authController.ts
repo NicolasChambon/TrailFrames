@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import { BadRequestError } from "@/lib/errors";
-import { registerSchema } from "@/schemas/auth";
+import { setAuthCookie } from "@/lib/jwt";
+import { loginSchema, registerSchema } from "@/schemas/auth";
 import { AuthService } from "@/services/authService";
 
 const authService = new AuthService();
@@ -21,8 +22,33 @@ export async function register(
 
     const user = await authService.registerUser(parseResult.data);
 
-    console.info(`User registered: ${user.id}`);
+    setAuthCookie(res, { userId: user.id, email: user.email });
+
+    console.info(`User registered and logged in: ${user.id}`);
     res.status(201).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// POST /auth/login
+export async function login(req: Request, res: Response, next: NextFunction) {
+  try {
+    const parseResult = loginSchema.safeParse(req.body);
+
+    if (!parseResult.success) {
+      throw new BadRequestError(parseResult.error.message);
+    }
+
+    const user = await authService.loginUser(parseResult.data);
+
+    setAuthCookie(res, { userId: user.id, email: user.email });
+
+    console.info(`User logged in: ${user.id}`);
+    res.status(200).json({
       success: true,
       user,
     });
