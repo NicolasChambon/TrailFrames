@@ -6,7 +6,10 @@
   "scripts": {
     "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
     "dev": "concurrently -n \"backend,frontend\" -c \"blue,magenta\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend"
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "ts:check": "npm run ts:check:back && npm run ts:check:front",
+    "ts:check:back": "cd backend && npx tsc --noEmit",
+    "ts:check:front": "cd frontend && npx tsc --noEmit"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

@@ -1,6 +1,10 @@
 import argon2 from "argon2";
 import { decrypt, encrypt } from "@/lib/encryption";
-import { BadRequestError, NotFoundError, UnauthorizedError } from "@/lib/errors";
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { LoginInput, RegisterInput } from "@/schemas/auth";
 import { AuthenticatedUser } from "@/types/auth";
@@ -32,12 +36,13 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  async authenticateWithStrava(code: string) {
+  async authenticateWithStrava(code: string, trailFramesUserId: string) {
     const tokenData = await stravaService.exchangeCodeForToken(code);
 
     const user = await prisma.user.update({
-      where: { stravaAthleteId: tokenData.athlete.id },
+      where: { id: trailFramesUserId },
       data: {
+        stravaAthleteId: tokenData.athlete.id,
         stravaAccessToken: encrypt(tokenData.access_token),
         stravaRefreshToken: encrypt(tokenData.refresh_token),
         stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),

@@ -2,30 +2,56 @@ import { Response } from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
-const JWT_EXPIRES_IN = "7d";
-const COOKIE_NAME = "auth_token";
+const JWT_ACCESS_SECRET =
+  process.env.JWT_ACCESS_SECRET || "access-secret-change-in-production";
+const JWT_REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET || "refresh-secret-change-in-production";
+
+const ACCESS_TOKEN_EXPIRES_IN = "15m";
+const REFRESH_TOKEN_EXPIRES_IN = "7d";
+
+const ACCESS_COOKIE_NAME = "access_token";
+const REFRESH_COOKIE_NAME = "refresh_token";
 
 interface JwtPayload {
   userId: string;
   email: string;
 }
 
-export function generateToken(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+export function generateAccessToken(payload: JwtPayload): string {
+  return jwt.sign(payload, JWT_ACCESS_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+  });
 }
 
-export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, JWT_SECRET) as JwtPayload;
+export function generateRefreshToken(payload: JwtPayload): string {
+  return jwt.sign(payload, JWT_REFRESH_SECRET, {
+    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+  });
 }
 
-export function setAuthCookie(res: Response, payload: JwtPayload): void {
-  const token = generateToken(payload);
+export function verifyAccessToken(token: string): JwtPayload {
+  return jwt.verify(token, JWT_ACCESS_SECRET) as JwtPayload;
+}
+
+export function verifyRefreshToken(token: string): JwtPayload {
+  return jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload;
+}
+
+export function setAuthCookies(res: Response, payload: JwtPayload): void {
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
 
   const isProduction = process.env.NODE_ENV === "production";
 
-  res.cookie(COOKIE_NAME, token, {
+  res.cookie(ACCESS_COOKIE_NAME, accessToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "strict" : "lax",
+    maxAge: 15 * 60 * 1000, // 15 min in ms
+  });
+
+  res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? "strict" : "lax",
@@ -33,8 +59,9 @@ export function setAuthCookie(res: Response, payload: JwtPayload): void {
   });
 }
 
-export function clearAuthCookie(res: Response): void {
-  res.clearCookie(COOKIE_NAME);
+export function clearAuthCookies(res: Response): void {
+  res.clearCookie(ACCESS_COOKIE_NAME);
+  res.clearCookie(REFRESH_COOKIE_NAME);
 }
 
-export { COOKIE_NAME };
+export { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME };
