@@ -26,7 +26,7 @@ export default function Callback() {
 
   useEffect(() => {
     if (errorParam || !code || error) {
-      setTimeout(() => navigate("/home"), 3000);
+      setTimeout(() => navigate("/strava-sync"), 3000);
       return;
     }
 

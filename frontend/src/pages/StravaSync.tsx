@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { TypographyH1 } from "@/components/ui/typographyH1";
 import { generateStravaAuthUrl } from "@/lib/stravaAuth";
 
-export default function Home() {
+export default function StravaSync() {
   const handleConnectStrava = () => {
     const authUrl = generateStravaAuthUrl();
     window.location.href = authUrl;

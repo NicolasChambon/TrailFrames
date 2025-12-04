@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 
 export function useMutation<T = void>(mutationFn: () => Promise<T>) {
@@ -14,8 +15,18 @@ export function useMutation<T = void>(mutationFn: () => Promise<T>) {
       setData(result);
       return result;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      let errorMessage = "Unknown error";
+
+      if (axios.isAxiosError<{ error?: string }>(error)) {
+        if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       setError(errorMessage);
       throw error;
     } finally {
