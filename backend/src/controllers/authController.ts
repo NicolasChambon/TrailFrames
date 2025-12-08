@@ -9,8 +9,10 @@ import {
 } from "@/lib/jwt";
 import { loginSchema, registerSchema } from "@/schemas/auth";
 import { AuthService } from "@/services/authService";
+import { TokenService } from "@/services/tokenService";
 
 const authService = new AuthService();
+const tokenService = new TokenService();
 
 // POST /auth/register
 export async function register(
@@ -27,7 +29,7 @@ export async function register(
 
     const user = await authService.registerUser(parseResult.data);
 
-    setAuthCookies(res, { userId: user.id, email: user.email });
+    await setAuthCookies(res, { userId: user.id, email: user.email });
 
     console.info(`User registered and logged in: ${user.id}`);
     res.status(201).json({
@@ -50,7 +52,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     const user = await authService.loginUser(parseResult.data);
 
-    setAuthCookies(res, { userId: user.id, email: user.email });
+    await setAuthCookies(res, { userId: user.id, email: user.email });
 
     console.info(`User logged in: ${user.id}`);
     res.status(200).json({
@@ -82,7 +84,15 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
     const payload = verifyRefreshToken(refreshToken);
 
-    setAuthCookies(res, { userId: payload.userId, email: payload.email });
+    const validation = await tokenService.validateRefreshToken(refreshToken);
+
+    if (!validation.valid) {
+      throw new UnauthorizedError("Invalid or expired refresh token");
+    }
+
+    await tokenService.revokeRefreshToken(refreshToken);
+
+    await setAuthCookies(res, { userId: payload.userId, email: payload.email });
 
     console.info(`Tokens refreshed for user: ${payload.userId}`);
     res.status(200).json({
@@ -90,16 +100,18 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
       message: "Tokens refreshed successfully",
     });
   } catch (error) {
-    clearAuthCookies(res);
+    await clearAuthCookies(res, req.cookies[REFRESH_COOKIE_NAME]);
     next(error);
   }
 }
 
 // POST /auth/logout
-export async function logout(_: Request, res: Response) {
-  clearAuthCookies(res);
+export async function logout(reg: Request, res: Response) {
+  const refreshToken = reg.cookies[REFRESH_COOKIE_NAME];
 
-  console.info("User ${req.user?.id} logged out");
+  await clearAuthCookies(res, refreshToken);
+
+  console.info("User ${req.user?.userId} logged out");
   res.status(200).json({
     success: true,
     message: "Logged out successfully",

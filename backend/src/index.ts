@@ -5,6 +5,9 @@ import "dotenv/config";
 import helmet from "helmet";
 import { errorHandler } from "./lib/errors";
 import routes from "./routes";
+import { TokenService } from "./services/tokenService";
+
+const tokenService = new TokenService();
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -42,6 +45,15 @@ app.use(express.json());
 app.use(routes);
 
 app.use(errorHandler);
+
+setInterval(async () => {
+  try {
+    await tokenService.cleanExpiredTokens();
+    console.info("Expired refresh tokens cleaned up");
+  } catch (error) {
+    console.error("Error cleaning expired refresh tokens:", error);
+  }
+}, 60 * 60 * 1000); // Every 60 minutes
 
 app.listen(port, () => {
   console.info(`🚀 Server running on http://localhost:${port}`);

@@ -1,6 +1,9 @@
 import { Response } from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import { TokenService } from "@/services/tokenService";
+
+const tokenService = new TokenService();
 
 function getRequiredEnv(key: string): string {
   const value = process.env[key];
@@ -44,9 +47,14 @@ export function verifyRefreshToken(token: string): JwtPayload {
   return jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload;
 }
 
-export function setAuthCookies(res: Response, payload: JwtPayload): void {
+export async function setAuthCookies(
+  res: Response,
+  payload: JwtPayload
+): Promise<void> {
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
+
+  await tokenService.saveRefreshToken(payload.userId, refreshToken);
 
   const isProduction = process.env.NODE_ENV === "production";
 
@@ -65,7 +73,12 @@ export function setAuthCookies(res: Response, payload: JwtPayload): void {
   });
 }
 
-export function clearAuthCookies(res: Response): void {
+export async function clearAuthCookies(
+  res: Response,
+  refreshToken: string
+): Promise<void> {
+  await tokenService.revokeRefreshToken(refreshToken);
+
   res.clearCookie(ACCESS_COOKIE_NAME);
   res.clearCookie(REFRESH_COOKIE_NAME);
 }
