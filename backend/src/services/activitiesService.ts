@@ -1,25 +1,29 @@
 import { JwtPayload } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
 import { SummaryActivity } from "@/types/strava";
-import { AuthService } from "./authService";
 import { StravaService } from "./stravaServices";
 
 const stravaService = new StravaService();
-const authService = new AuthService();
 
 export class ActivitiesService {
-  async createAllActivities(user: JwtPayload) {
-    const userStravaAccessToken =
-      await authService.getRefreshedStravaAccessToken(user.userId);
+  async createAllActivities(userPayload: JwtPayload) {
+    const user = await prisma.user.findUnique({
+      where: { id: userPayload.userId },
+    });
+
+    if (!user?.stravaAccessToken) {
+      throw new Error("User does not have a Strava access token");
+    }
 
     const allActivities = await this.fetchAllStravaActivities(
-      userStravaAccessToken
+      user.stravaAccessToken
     );
-    await this.saveActivitiesToDb(user, allActivities);
+
+    await this.saveActivitiesToDb(userPayload, allActivities);
   }
 
   private async fetchAllStravaActivities(
-    stravaAccessToken: string
+    encryptedStravaAccessToken: string
   ): Promise<SummaryActivity[]> {
     const allActivities: SummaryActivity[] = [];
 
@@ -29,7 +33,7 @@ export class ActivitiesService {
 
     while (shouldFetchMore) {
       const activities = await stravaService.getActivities({
-        stravaAccessToken,
+        encryptedStravaAccessToken,
         page,
         perPage,
       });
