@@ -9,7 +9,10 @@
     "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
     "ts:check": "npm run ts:check:back && npm run ts:check:front",
     "ts:check:back": "cd backend && npx tsc --noEmit",
-    "ts:check:front": "cd frontend && npx tsc --noEmit"
+    "ts:check:front": "cd frontend && npx tsc --noEmit",
+    "errors:check:back": "cd backend && npx tsc --noEmit && npx eslint . --ext .ts,.tsx --max-warnings 0",
+    "errors:check:front": "cd frontend && npx tsc --noEmit && npx eslint . --ext .ts,.tsx --max-warnings 0",
+    "errors:check": "npm run errors:check:back && npm run errors:check:front"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
