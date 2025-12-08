@@ -4,6 +4,11 @@ import express from "express";
 import "dotenv/config";
 import helmet from "helmet";
 import { errorHandler } from "./lib/errors";
+import {
+  csrfErrorHandler,
+  csrfProtection,
+  getCsrfToken,
+} from "./middlewares/csrf";
 import routes from "./routes";
 import { TokenService } from "./services/tokenService";
 
@@ -42,8 +47,19 @@ app.use(cookieParser());
 
 app.use(express.json());
 
+// Public routes BEFORE csrfProtection
+// Health check endpoint
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", message: "Backend is running" });
+});
+// Endpoint to get CSRF token
+app.get("/csrf-token", csrfProtection, getCsrfToken);
+
+app.use(csrfProtection);
+
 app.use(routes);
 
+app.use(csrfErrorHandler);
 app.use(errorHandler);
 
 setInterval(async () => {
