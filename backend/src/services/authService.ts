@@ -7,7 +7,6 @@ import {
 } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { LoginInput, RegisterInput } from "@/schemas/auth";
-import { AuthenticatedUser } from "@/types/auth";
 import { StravaService } from "./stravaServices";
 
 const stravaService = new StravaService();
@@ -70,9 +69,9 @@ export class AuthService {
     return user;
   }
 
-  async getAuthenticatedUser(
+  async getRefreshedStravaAccessToken(
     trailFramesUserId: string
-  ): Promise<AuthenticatedUser> {
+  ): Promise<string> {
     const user = await prisma.user.findUnique({
       where: { id: trailFramesUserId },
     });
@@ -82,6 +81,15 @@ export class AuthService {
     }
 
     const bufferTime = 5 * 60 * 1000; // 5 min in ms
+
+    if (
+      !user.stravaAccessToken ||
+      !user.stravaRefreshToken ||
+      !user.stravaTokenExpiresAt
+    ) {
+      throw new UnauthorizedError("Strava not authenticated");
+    }
+
     const isTokenExpiringSoon =
       new Date().getTime() + bufferTime > user.stravaTokenExpiresAt.getTime();
 
@@ -101,19 +109,10 @@ export class AuthService {
 
       console.info(`Token refreshed for user: ${user.id}`);
 
-      return {
-        ...user,
-        stravaAccessToken: tokenData.access_token,
-        stravaRefreshToken: tokenData.refresh_token,
-        stravaTokenExpiresAt: new Date(tokenData.expires_at * 1000),
-      };
+      return tokenData.access_token;
     }
 
-    return {
-      ...user,
-      stravaAccessToken: decrypt(user.stravaAccessToken),
-      stravaRefreshToken: decrypt(user.stravaRefreshToken),
-    };
+    return decrypt(user.stravaAccessToken);
   }
 
   async loginUser(input: LoginInput) {

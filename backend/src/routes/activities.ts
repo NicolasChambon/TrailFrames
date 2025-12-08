@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { syncActivities } from "@/controllers/activitiesController";
-import { requireAuth } from "@/middleware/auth";
+import { requireAuth } from "@/middlewares/auth";
 
 const router = Router();
 

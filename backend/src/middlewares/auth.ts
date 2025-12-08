@@ -7,13 +7,6 @@ import {
 } from "@/lib/jwt";
 import { authCookiesSchema } from "@/schemas/auth";
 
-export interface AuthenticatedRequest extends Request {
-  user: {
-    userId: string;
-    email: string;
-  };
-}
-
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const cookiesResult = authCookiesSchema.safeParse(req.cookies);
@@ -28,7 +21,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     if (accessToken) {
       try {
         const payload = verifyAccessToken(accessToken);
-        (req as AuthenticatedRequest).user = payload;
+        req.user = payload;
         return next();
       } catch (error) {
         next(error);
@@ -39,7 +32,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
       try {
         const payload = verifyRefreshToken(refreshToken);
         setAuthCookies(res, { userId: payload.userId, email: payload.email });
-        (req as AuthenticatedRequest).user = payload;
+        req.user = payload;
         console.info(`Tokens auto-refreshed for user: ${payload.userId}`);
         return next();
       } catch (error) {

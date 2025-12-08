@@ -2,11 +2,14 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import "dotenv/config";
+import helmet from "helmet";
 import { errorHandler } from "./lib/errors";
 import routes from "./routes";
 
 const app = express();
 const port = process.env.PORT || 4000;
+
+app.use(helmet());
 
 const allowedOrigins = [
   process.env.FRONTEND_DEV_URL,
@@ -14,11 +17,16 @@ const allowedOrigins = [
   process.env.FRONTEND_PROD_URL,
 ].filter(Boolean);
 
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+      if (
+        (!origin && !isProduction) ||
+        (origin && allowedOrigins.includes(origin))
+      ) {
+        return callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }

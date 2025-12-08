@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import z from "zod";
-import { BadRequestError } from "@/lib/errors";
+import { UnauthorizedError } from "@/lib/errors";
 import { ActivitiesService } from "@/services/activitiesService";
 
 const activitiesService = new ActivitiesService();
@@ -12,19 +11,11 @@ export async function syncActivities(
   next: NextFunction
 ) {
   try {
-    const paramsSchema = z.object({
-      trailFramesUserId: z.string().min(1),
-    });
-
-    const parseResult = paramsSchema.safeParse(req.params);
-
-    if (!parseResult.success) {
-      throw new BadRequestError(parseResult.error.message);
+    if (!req.user) {
+      throw new UnauthorizedError("Authentication required");
     }
 
-    const { trailFramesUserId } = parseResult.data;
-
-    await activitiesService.createAllActivities(trailFramesUserId);
+    await activitiesService.createAllActivities(req.user);
 
     res.status(200).json({ success: true });
   } catch (error) {

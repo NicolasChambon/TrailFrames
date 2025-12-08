@@ -1,13 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { BadRequestError } from "@/lib/errors";
+import { BadRequestError, UnauthorizedError } from "@/lib/errors";
 import {
   clearAuthCookies,
   REFRESH_COOKIE_NAME,
   setAuthCookies,
   verifyRefreshToken,
 } from "@/lib/jwt";
-import { AuthenticatedRequest } from "@/middleware/auth";
 import { loginSchema, registerSchema } from "@/schemas/auth";
 import { AuthService } from "@/services/authService";
 
@@ -125,7 +124,12 @@ export async function handleCallback(
     }
 
     const { code } = parseResult.data;
-    const userId = (req as AuthenticatedRequest).user.userId;
+
+    if (!req.user) {
+      throw new UnauthorizedError("Authentication required");
+    }
+
+    const userId = req.user.userId;
 
     const user = await authService.authenticateWithStrava(code, userId);
 

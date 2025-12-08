@@ -2,10 +2,16 @@ import { Response } from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-const JWT_ACCESS_SECRET =
-  process.env.JWT_ACCESS_SECRET || "access-secret-change-in-production";
-const JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET || "refresh-secret-change-in-production";
+function getRequiredEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+}
+
+const JWT_ACCESS_SECRET = getRequiredEnv("JWT_ACCESS_SECRET");
+const JWT_REFRESH_SECRET = getRequiredEnv("JWT_REFRESH_SECRET");
 
 const ACCESS_TOKEN_EXPIRES_IN = "15m";
 const REFRESH_TOKEN_EXPIRES_IN = "7d";
@@ -13,7 +19,7 @@ const REFRESH_TOKEN_EXPIRES_IN = "7d";
 const ACCESS_COOKIE_NAME = "access_token";
 const REFRESH_COOKIE_NAME = "refresh_token";
 
-interface JwtPayload {
+export interface JwtPayload {
   userId: string;
   email: string;
 }

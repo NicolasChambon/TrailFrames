@@ -1,5 +1,5 @@
+import { JwtPayload } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
-import { AuthenticatedUser } from "@/types/auth";
 import { SummaryActivity } from "@/types/strava";
 import { AuthService } from "./authService";
 import { StravaService } from "./stravaServices";
@@ -8,10 +8,12 @@ const stravaService = new StravaService();
 const authService = new AuthService();
 
 export class ActivitiesService {
-  async createAllActivities(trailFramesUserId: string) {
-    const user = await authService.getAuthenticatedUser(trailFramesUserId);
+  async createAllActivities(user: JwtPayload) {
+    const userStravaAccessToken =
+      await authService.getRefreshedStravaAccessToken(user.userId);
+
     const allActivities = await this.fetchAllStravaActivities(
-      user.stravaAccessToken
+      userStravaAccessToken
     );
     await this.saveActivitiesToDb(user, allActivities);
   }
@@ -51,7 +53,7 @@ export class ActivitiesService {
   }
 
   private async saveActivitiesToDb(
-    user: AuthenticatedUser,
+    user: JwtPayload,
     activities: SummaryActivity[]
   ) {
     console.info(
@@ -84,7 +86,7 @@ export class ActivitiesService {
 
     const activitiesData = activitiesToCreate.map((activity) => ({
       stravaActivityId: activity.id,
-      trailFramesUserId: user.id,
+      trailFramesUserId: user.userId,
       stravaAthleteId: activity.athlete.id,
       stravaUploadId: activity.upload_id ?? null,
       name: activity.name,

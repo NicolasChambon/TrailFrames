@@ -7,22 +7,24 @@ CREATE TYPE "Sex" AS ENUM ('M', 'F', 'O');
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "stravaAthleteId" BIGINT NOT NULL,
-    "stravaAccessToken" TEXT NOT NULL,
-    "stravaRefreshToken" TEXT NOT NULL,
-    "stravaTokenExpiresAt" TIMESTAMP(3) NOT NULL,
+    "password" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "stravaAthleteId" BIGINT,
+    "stravaAccessToken" TEXT,
+    "stravaRefreshToken" TEXT,
+    "stravaTokenExpiresAt" TIMESTAMP(3),
     "username" TEXT,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
+    "firstName" TEXT,
+    "lastName" TEXT,
     "bio" TEXT,
     "city" TEXT,
     "state" TEXT,
     "country" TEXT,
     "sex" "Sex",
-    "premium" BOOLEAN NOT NULL,
-    "summit" BOOLEAN NOT NULL,
-    "stravaCreatedAt" TIMESTAMP(3) NOT NULL,
-    "stravaUpdatedAt" TIMESTAMP(3) NOT NULL,
+    "premium" BOOLEAN,
+    "summit" BOOLEAN,
+    "stravaCreatedAt" TIMESTAMP(3),
+    "stravaUpdatedAt" TIMESTAMP(3),
     "badgeTypeId" INTEGER,
     "weight" DOUBLE PRECISION,
     "profileMedium" TEXT,
@@ -81,6 +83,9 @@ CREATE TABLE "Activity" (
 
     CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_stravaAthleteId_key" ON "User"("stravaAthleteId");

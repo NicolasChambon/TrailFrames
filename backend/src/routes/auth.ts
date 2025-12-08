@@ -1,4 +1,5 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import {
   login,
   register,
@@ -6,7 +7,15 @@ import {
   refresh,
   logout,
 } from "@/controllers/authController";
-import { requireAuth } from "@/middleware/auth";
+import { requireAuth } from "@/middlewares/auth";
+
+const WINDOW_MIN = 15;
+
+const authLimiter = rateLimit({
+  windowMs: WINDOW_MIN * 60 * 1000, // 15 minutes
+  max: 5,
+  message: `Too many attempts, please try again after ${WINDOW_MIN} minutes.`,
+});
 
 const router = Router();
 
@@ -14,7 +23,7 @@ const router = Router();
 router.post("/register", register);
 
 // POST /auth/login
-router.post("/login", login);
+router.post("/login", authLimiter, login);
 
 // POST /auth/refresh
 router.post("/refresh", refresh);
