@@ -74,34 +74,37 @@ enum Sex {
 
 model User {
   id                    String      @id @default(cuid())
-  password              String
   email                 String      @unique
   stravaAthleteId       BigInt?     @unique
+  username              String?
+  lastName              String?
+  firstName             String?
+  refreshTokens         RefreshToken[]
   stravaAccessToken     String?                          // Encrypted with AES-256-GCM
   stravaRefreshToken    String?                          // Encrypted with AES-256-GCM       
   stravaTokenExpiresAt  DateTime?
-  username              String?
-  firstName             String?
-  lastName              String?
+  password              String
+  activities            Activity[]
   bio                   String?
   city                  String?
   state                 String?
   country               String?
   sex                   Sex?
-  premium               Boolean?
-  summit                Boolean?
-  stravaCreatedAt       DateTime?
-  stravaUpdatedAt       DateTime?
-  badgeTypeId           Int?
   weight                Float?
   profileMedium         String?
   profile               String?
   friend                Int?
   follower              Int?
+  badgeTypeId           Int?
+  premium               Boolean?
+  summit                Boolean?
+  stravaCreatedAt       DateTime?
+  stravaUpdatedAt       DateTime?
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
-  activities            Activity[]
-  refreshTokens         RefreshToken[]
+
+
+  @@index([stravaAthleteId])
 }
 
 model RefreshToken {
@@ -119,7 +122,6 @@ model Activity {
   trailFramesUserId     String
   user                  User      @relation(fields: [trailFramesUserId], references: [id])
   stravaAthleteId       BigInt
-  stravaUploadId        BigInt?
   name                  String
   distance              Float
   movingTime            Int
@@ -128,6 +130,7 @@ model Activity {
   elevHigh              Float?
   elevLow               Float?
   sportType             SportType
+  stravaUploadId        BigInt?
   startDate             DateTime
   startDateLocal        DateTime
   timezone              String
@@ -156,5 +159,9 @@ model Activity {
   weightedAverageWatts  Int?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+
+  @@index([trailFramesUserId])
+  @@index([startDate])
+  @@index([sportType])
 }
  

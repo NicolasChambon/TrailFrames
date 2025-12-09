@@ -62,7 +62,19 @@ api.interceptors.response.use(
       return api(originalRequest);
     }
 
-    console.error("API Error:", error.response?.data || error.message);
+    if (import.meta.env.DEV) {
+      console.error("API Error:", {
+        url: originalRequest?.url,
+        method: originalRequest?.method,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    }
+
+    if (error.response?.status === 401) {
+      window.location.href = "/login";
+    }
+
     return Promise.reject(error);
   }
 );
