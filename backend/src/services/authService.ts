@@ -5,6 +5,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "@/lib/errors";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { LoginInput, RegisterInput } from "@/schemas/auth";
 import { StravaService } from "./stravaServices";
@@ -108,6 +109,11 @@ export class AuthService {
       });
 
       console.info(`Token refreshed for user: ${user.id}`);
+
+      logger.info("Strava token refreshed", {
+        userId: user.id,
+        expiresAt: new Date(tokenData.expires_at * 1000).toISOString(),
+      });
 
       return tokenData.access_token;
     }

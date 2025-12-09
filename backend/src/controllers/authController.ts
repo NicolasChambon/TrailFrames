@@ -7,6 +7,7 @@ import {
   setAuthCookies,
   verifyRefreshToken,
 } from "@/lib/jwt";
+import { logger } from "@/lib/logger";
 import { loginSchema, registerSchema } from "@/schemas/auth";
 import { AuthService } from "@/services/authService";
 import { TokenService } from "@/services/tokenService";
@@ -31,7 +32,11 @@ export async function register(
 
     await setAuthCookies(res, { userId: user.id, email: user.email });
 
-    console.info(`User registered and logged in: ${user.id}`);
+    logger.info("User registered and logged in", {
+      userId: user.id,
+      email: user.email,
+    });
+
     res.status(201).json({
       success: true,
       user,
@@ -54,7 +59,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     await setAuthCookies(res, { userId: user.id, email: user.email });
 
-    console.info(`User logged in: ${user.id}`);
+    logger.info("User logged in", {
+      userId: user.id,
+      email: user.email,
+    });
+
     res.status(200).json({
       success: true,
       user,
@@ -94,7 +103,8 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
     await setAuthCookies(res, { userId: payload.userId, email: payload.email });
 
-    console.info(`Tokens refreshed for user: ${payload.userId}`);
+    logger.info("Tokens refreshed", { userId: payload.userId });
+
     res.status(200).json({
       success: true,
       message: "Tokens refreshed successfully",
@@ -106,12 +116,13 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 }
 
 // POST /auth/logout
-export async function logout(reg: Request, res: Response) {
-  const refreshToken = reg.cookies[REFRESH_COOKIE_NAME];
+export async function logout(req: Request, res: Response) {
+  const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
 
   await clearAuthCookies(res, refreshToken);
 
-  console.info("User ${req.user?.userId} logged out");
+  logger.info("User logged out", { userId: req.user?.userId });
+
   res.status(200).json({
     success: true,
     message: "Logged out successfully",
@@ -145,7 +156,11 @@ export async function handleCallback(
 
     const user = await authService.authenticateWithStrava(code, userId);
 
-    console.info(`User authenticated on Strava: ${user.id}`);
+    logger.info("User authenticated on Strava", {
+      userId: user.id,
+      stravaAthleteId: user.stravaAthleteId,
+    });
+
     res.status(200).json({
       success: true,
       trailFramesUserId: user.id,

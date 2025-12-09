@@ -4,6 +4,7 @@ import express from "express";
 import "dotenv/config";
 import helmet from "helmet";
 import { errorHandler } from "./lib/errors";
+import { logger } from "./lib/logger";
 import {
   csrfErrorHandler,
   csrfProtection,
@@ -50,6 +51,7 @@ app.use(express.json());
 // Public routes BEFORE csrfProtection
 // Health check endpoint
 app.get("/health", (_req, res) => {
+  logger.debug("Health check performesd");
   res.json({ status: "ok", message: "Backend is running" });
 });
 // Endpoint to get CSRF token
@@ -65,12 +67,15 @@ app.use(errorHandler);
 setInterval(async () => {
   try {
     await tokenService.cleanExpiredTokens();
-    console.info("Expired refresh tokens cleaned up");
+    logger.info("Expired refresh tokens cleaned up");
   } catch (error) {
-    console.error("Error cleaning expired refresh tokens:", error);
+    logger.error("Error cleaning expired refresh tokens", { error });
   }
 }, 60 * 60 * 1000); // Every 60 minutes
 
 app.listen(port, () => {
-  console.info(`🚀 Server running on http://localhost:${port}`);
+  logger.info(`🚀 Server running on http://localhost:${port}`, {
+    port,
+    environment: process.env.NODE_ENV || "development",
+  });
 });

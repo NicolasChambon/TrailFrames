@@ -6,6 +6,7 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from "@/lib/jwt";
+import { logger } from "@/lib/logger";
 import { authCookiesSchema } from "@/schemas/auth";
 import { TokenService } from "@/services/tokenService";
 
@@ -57,7 +58,8 @@ export async function requireAuth(
 
         req.user = payload;
 
-        console.info(`Tokens auto-refreshed for user: ${payload.userId}`);
+        logger.info("Tokens auto-refreshed", { userId: payload.userId });
+
         return next();
       } catch (error) {
         await clearAuthCookies(res, refreshToken);

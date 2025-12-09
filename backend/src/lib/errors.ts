@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { logError } from "./logger";
 
 export class NotFoundError extends Error {
   statusCode = 404;
@@ -28,25 +29,31 @@ export function errorHandler(
   error: Error,
   req: Request,
   res: Response,
-  _next: NextFunction
+  _: NextFunction
 ) {
-  console.error("Error:", {
+  logError(error, {
     path: req.path,
-    ...error,
-    message: error.message,
-    stack: error.stack,
-    timestamp: new Date().toISOString(),
+    method: req.method,
+    ip: req.ip,
+    userId: req.user?.userId,
   });
 
-  if ("statusCode" in error && typeof error.statusCode === "number") {
-    return res.status(error.statusCode).json({
-      success: false,
-      error: error.message,
-    });
+  const statusCode =
+    "statusCode" in error && typeof error.statusCode === "number"
+      ? error.statusCode
+      : 500;
+
+  const response: { success: false; error: string; details?: string } = {
+    success: false,
+    error:
+      statusCode === 500
+        ? "An unexpected error occurred. Please try again later."
+        : error.message,
+  };
+
+  if (process.env.NODE_ENV !== "production" && error.stack) {
+    response.details = error.stack;
   }
 
-  res.status(500).json({
-    success: false,
-    error: "An unexpected error occurred. Please try again later.",
-  });
+  res.status(statusCode).json(response);
 }
