@@ -1,7 +1,7 @@
 import request from "supertest";
-import { hashMockPasswords, mockUsers } from "tests/helpers/mockData";
-import { getCsrfContext } from "tests/helpers/testCsrf";
-import { createTestApp } from "tests/helpers/testServer";
+import { hashMockPasswords, mockUsers } from "@tests/helpers/mockData";
+import { getCsrfContext } from "@tests/helpers/testCsrf";
+import { createTestApp } from "@tests/helpers/testServer";
 import { beforeEach, describe, expect, it } from "vitest";
 
 const app = createTestApp();

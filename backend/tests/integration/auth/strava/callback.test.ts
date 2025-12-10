@@ -2,11 +2,11 @@ import request from "supertest";
 import {
   hashMockPasswords,
   mockStravaTokenResponse,
-} from "tests/helpers/mockData";
-import { getCsrfContext } from "tests/helpers/testCsrf";
-import { getTestPrisma } from "tests/helpers/testDb";
-import { getRegisteredUserContext } from "tests/helpers/testRegisterUser";
-import { createTestApp } from "tests/helpers/testServer";
+} from "@tests/helpers/mockData";
+import { getCsrfContext } from "@tests/helpers/testCsrf";
+import { getTestPrisma } from "@tests/helpers/testDb";
+import { getRegisteredUserContext } from "@tests/helpers/testRegisterUser";
+import { createTestApp } from "@tests/helpers/testServer";
 import { beforeEach, describe, expect, it } from "vitest";
 import { decrypt } from "@/lib/encryption";
 

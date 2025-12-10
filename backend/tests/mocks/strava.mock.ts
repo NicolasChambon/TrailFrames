@@ -4,7 +4,7 @@ import { setupServer } from "msw/node";
 import {
   mockStravaActivities,
   mockStravaTokenResponse,
-} from "tests/helpers/mockData";
+} from "@tests/helpers/mockData";
 
 const STRAVA_API_URL =
   process.env.STRAVA_API_URL || "https://www.strava.com/api/v3";

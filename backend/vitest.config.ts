@@ -5,7 +5,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    setupFiles: [],
+    setupFiles:
+      process.env.TEST_TYPE === "integration" ? ["./tests/setup.ts"] : [],
     include: ["tests/**/*.test.ts"],
     coverage: {
       provider: "v8",
@@ -22,9 +23,6 @@ export default defineConfig({
     },
     testTimeout: 10000,
     hookTimeout: 10000,
-    // Run integration tests sequentially to avoid database conflicts
-    fileParallelism: false,
-    maxConcurrency: 1,
   },
   resolve: {
     alias: {
