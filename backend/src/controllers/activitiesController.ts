@@ -4,7 +4,7 @@ import { ActivitiesService } from "@/services/activitiesService";
 
 const activitiesService = new ActivitiesService();
 
-// PUT /activities/:trailFramesUserId
+// PUT /activities
 export async function syncActivities(
   req: Request,
   res: Response,

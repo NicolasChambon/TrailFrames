@@ -1,5 +1,6 @@
 import csurf from "csurf";
 import { NextFunction, Request, Response } from "express";
+import { logError } from "@/lib/logger";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -21,10 +22,17 @@ export function getCsrfToken(req: Request, res: Response) {
 // Customised error handler for CSRF errors
 export function csrfErrorHandler(
   error: Error,
-  _: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
+  logError(error, {
+    path: req.path,
+    method: req.method,
+    ip: req.ip,
+    userId: req.user?.userId,
+  });
+
   if ("code" in error && error.code === "EBADCSRFTOKEN") {
     return res.status(403).json({
       success: false,

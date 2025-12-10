@@ -27,6 +27,11 @@
     "erasableSyntaxOnly": false,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/**/*", "prisma/**/*.ts"],
+  "include": [
+    "src/**/*",
+    "prisma/**/*.ts",
+    "vitest.config.ts",
+    "tests/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
