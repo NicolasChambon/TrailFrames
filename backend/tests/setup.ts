@@ -1,5 +1,5 @@
 import { beforeAll, afterAll, afterEach } from "vitest";
-import { setupTestDb, clearTestDb, teardownTestDb } from "./helpers/testDb";
+import { setupTestDb, clearTestDb } from "./helpers/testDb";
 import { server as mockServer } from "./mocks/strava.mock";
 import "dotenv/config";
 
@@ -27,7 +27,7 @@ if (process.env.TEST_DATABASE_URL === process.env.DATABASE_URL) {
 }
 
 /**
- * beforeAll - Executed ONCE before all tests
+ * beforeAll - Executed before EACH test file
  * Setup test database and start mock servers
  */
 beforeAll(async () => {
@@ -37,6 +37,10 @@ beforeAll(async () => {
     // Apply migrations on test database
     await setupTestDb();
     console.info("✅ Database migrations applied");
+
+    // Clear any existing data from previous test runs
+    await clearTestDb();
+    console.info("✅ Database cleared");
 
     // Start MSW mock server to intercept Strava calls
     mockServer.listen({
@@ -80,20 +84,20 @@ afterEach(async () => {
 });
 
 /**
- * afterAll - Executed ONCE after all tests
+ * afterAll - Executed after EACH test file
  * Clean resources and close connections
  */
 afterAll(async () => {
   console.info("🧹 Tearing down test environment...");
 
   try {
-    // Close Frisma connection
-    await teardownTestDb();
-    console.info("✅ Database connection closed");
+    // Note: We don't deconnect Prisma here as other test files may still need it.
+    // Node.js will automatically close the connection at the end of the process.
+    console.info("✅ Database connection will be closed by Node.js");
 
-    // Stop mock server
-    mockServer.close();
-    console.info("✅ Mock server stopped");
+    // Reset handlers but don't close the server (other test files may need it)
+    mockServer.resetHandlers();
+    console.info("✅ Mock server handlers reset");
   } catch (error) {
     console.error("❌ Failed to teardown test environment:", error);
     throw error;

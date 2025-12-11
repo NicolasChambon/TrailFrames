@@ -8,6 +8,7 @@ export default defineConfig({
     setupFiles:
       process.env.TEST_TYPE === "integration" ? ["./tests/setup.ts"] : [],
     include: ["tests/**/*.test.ts"],
+    fileParallelism: process.env.TEST_TYPE === "integration" ? false : true,
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],

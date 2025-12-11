@@ -22,16 +22,16 @@ export async function getRegisteredUserContext(
   const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
 
   const accessCookie = cookieArray.find((cookie: string) =>
-    cookie.startsWith("accessToken=")
+    cookie.startsWith("access_token=")
   );
 
   const refreshCookie = cookieArray.find((cookie: string) =>
-    cookie.startsWith("refreshToken=")
+    cookie.startsWith("refresh_token=")
   );
 
-  const accessToken = accessCookie.split(";")[0].split("=")[1];
+  const accessToken = accessCookie!.split(";")[0].split("=")[1];
 
-  const refreshToken = refreshCookie.split(";")[0].split("=")[1];
+  const refreshToken = refreshCookie!.split(";")[0].split("=")[1];
 
   return { userId, accessToken, refreshToken };
 }

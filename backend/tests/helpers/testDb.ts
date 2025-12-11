@@ -15,10 +15,16 @@ if (!TEST_DATABASE_URL) {
  */
 export async function setupTestDb() {
   try {
+    // Disconnect Prisma before running migrations to avoid connection conflicts
+    await prisma.$disconnect();
+
     execSync(`npx prisma migrate deploy`, {
       env: { ...process.env, DATABASE_URL: TEST_DATABASE_URL },
       stdio: "ignore",
     });
+
+    // Reconnect after migrations
+    await prisma.$connect();
   } catch (error) {
     console.error("Failed to run migrations on test database:", error);
     throw error;
@@ -31,9 +37,14 @@ export async function setupTestDb() {
  * IMPORTANT: Removing order respects foreign key constraints
  */
 export async function clearTestDb() {
-  await prisma.activity.deleteMany();
-  await prisma.refreshToken.deleteMany();
-  await prisma.user.deleteMany();
+  try {
+    await prisma.activity.deleteMany();
+    await prisma.refreshToken.deleteMany();
+    await prisma.user.deleteMany();
+  } catch (error) {
+    console.error("Error clearing test database:", error);
+    throw error;
+  }
 }
 
 /**
