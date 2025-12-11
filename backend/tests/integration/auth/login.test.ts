@@ -45,10 +45,12 @@ describe("User Login Integration Tests", () => {
       const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
 
       expect(
-        cookieArray.some((cookie: string) => cookie.startsWith("accessToken="))
+        cookieArray.some((cookie: string) => cookie.startsWith("access_token="))
       ).toBe(true);
       expect(
-        cookieArray.some((cookie: string) => cookie.startsWith("refreshToken="))
+        cookieArray.some((cookie: string) =>
+          cookie.startsWith("refresh_token=")
+        )
       ).toBe(true);
     });
 
@@ -64,21 +66,22 @@ describe("User Login Integration Tests", () => {
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain("Invalid");
+      expect(response.body.error).toContain("Invalid email or password");
     });
 
-    it("should return 404 if user does not exist", async () => {
+    it("should return 401 if user does not exist", async () => {
       const response = await request(app)
         .post("/auth/login")
         .set("Cookie", cookies)
         .set("X-CSRF-Token", csrfToken)
         .send({
-          email: "noneexistent@example.com",
+          email: "nonexistent@example.com",
           password: mockUsers.bobby.password,
         });
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
+      expect(response.body.error).toContain("Invalid email or password");
     });
 
     it("should return 403 without CSRF token", async () => {
@@ -91,7 +94,7 @@ describe("User Login Integration Tests", () => {
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toContain("CSRF");
+      expect(response.body.error).toContain("Invalid CSRF token.");
     });
 
     it("should return 403 with invalid CSRF token", async () => {
@@ -105,7 +108,7 @@ describe("User Login Integration Tests", () => {
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toContain("CSRF");
+      expect(response.body.error).toContain("Invalid CSRF token.");
     });
   });
 });

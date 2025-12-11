@@ -39,7 +39,22 @@ beforeAll(async () => {
     console.info("✅ Database migrations applied");
 
     // Start MSW mock server to intercept Strava calls
-    mockServer.listen({ onUnhandledRequest: "error" });
+    mockServer.listen({
+      onUnhandledRequest: (req) => {
+        const url = new URL(req.url);
+        const isLocalhost =
+          url.hostname === "127.0.0.1" || url.hostname === "localhost";
+
+        if (!isLocalhost) {
+          console.error(
+            `[MSW] Unhandled external request: ${req.method} ${req.url}`
+          );
+          throw new Error(
+            `Unexpected external request: ${req.method} ${req.url}`
+          );
+        }
+      },
+    });
     console.info("✅ Mock server started");
   } catch (error) {
     console.error("❌ Failed to setup test environment:", error);

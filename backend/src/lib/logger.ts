@@ -1,7 +1,9 @@
 import winston from "winston";
 
 const isProduction = process.env.NODE_ENV === "production";
-const logLevel = isProduction ? "info" : "debug";
+const isTest = process.env.NODE_ENV === "test";
+
+const logLevel = isTest ? "silent" : isProduction ? "info" : "debug";
 
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
