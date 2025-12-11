@@ -1,15 +1,17 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import csurf from "csurf";
 import express, { Express } from "express";
 import helmet from "helmet";
 import { errorHandler } from "@/lib/errors";
-import {
-  csrfErrorHandler,
-  csrfProtection,
-  getCsrfToken,
-} from "@/middlewares/csrf";
+import { csrfErrorHandler, getCsrfToken } from "@/middlewares/csrf";
 import routes from "@/routes";
 
+/**
+ * Create an Express instance configured for testing
+ * IMPORTANT: This function must be called once by test suite
+ * (in a describe) to garantee CSRF secret remains coherent.
+ */
 export function createTestApp(): Express {
   const app = express();
 
@@ -31,10 +33,20 @@ export function createTestApp(): Express {
     res.json({ status: "ok", message: "Test backend is running" });
   });
 
-  // CSRF token
+  // CSRF configuration for tests
+  // We create one dedicated instance by app to have stable secret
+  const csrfProtection = csurf({
+    cookie: {
+      httpOnly: true,
+      secure: false, // false for tests (non-HTTPS)
+      sameSite: "lax",
+    },
+  });
+
+  // CSRF token endpoint - must be before global middleware application
   app.get("/csrf-token", csrfProtection, getCsrfToken);
 
-  // Apply CSRF protection
+  // Apply CSRF protection to all routes
   app.use(csrfProtection);
 
   // Routes

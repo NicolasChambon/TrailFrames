@@ -1,10 +1,10 @@
 import "dotenv/config";
-import { http, HttpResponse } from "msw";
-import { setupServer } from "msw/node";
 import {
   mockStravaActivities,
   mockStravaTokenResponse,
 } from "@tests/helpers/mockData";
+import { http, HttpResponse } from "msw";
+import { setupServer } from "msw/node";
 
 const STRAVA_API_URL =
   process.env.STRAVA_API_URL || "https://www.strava.com/api/v3";

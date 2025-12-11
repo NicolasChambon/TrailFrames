@@ -1,4 +1,5 @@
 import argon2 from "argon2";
+import { prisma } from "@/lib/prisma";
 
 export const mockUsers = {
   bobby: {
@@ -89,3 +90,45 @@ export const mockStravaActivities = [
     display_hide_heartrate_option: true,
   },
 ];
+
+export async function seedTestUsers() {
+  if (!mockUsers.bobby.hashedPassword || !mockUsers.scarlet.hashedPassword) {
+    await hashMockPasswords();
+  }
+
+  const bobby = await prisma.user.create({
+    data: {
+      email: mockUsers.bobby.email,
+      password: mockUsers.bobby.hashedPassword,
+    },
+  });
+
+  const scarlet = await prisma.user.create({
+    data: {
+      email: mockUsers.scarlet.email,
+      password: mockUsers.scarlet.hashedPassword,
+    },
+  });
+
+  return { bobby, scarlet };
+}
+
+export async function seedSingleTestUser(userKey: keyof typeof mockUsers) {
+  const userData = mockUsers[userKey];
+
+  if (!userData.hashedPassword) {
+    userData.hashedPassword = await argon2.hash(userData.password);
+  }
+
+  const createdUser = await prisma.user.create({
+    data: {
+      email: userData.email,
+      password: userData.hashedPassword,
+    },
+  });
+
+  return {
+    id: createdUser.id,
+    email: createdUser.email,
+  };
+}
