@@ -1,5 +1,5 @@
 {
-  "name": "trailframes",
+  "name": "trailframes-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -26,7 +26,8 @@
     "react-router-dom": "^7.9.5",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.17",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

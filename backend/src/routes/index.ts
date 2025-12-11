@@ -4,12 +4,6 @@ import authRoutes from "./auth";
 
 const router = Router();
 
-// Health check endpoint
-router.get("/health", (_req, res) => {
-  res.json({ status: "ok", message: "Backend is running" });
-});
-
-// API sub-routers
 router.use("/auth", authRoutes);
 router.use("/activities", activitiesRoutes);
 

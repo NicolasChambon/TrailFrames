@@ -7,7 +7,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"]
     },
 
     /* Emit */
@@ -17,7 +18,7 @@
     "declarationMap": true,
     "sourceMap": true,
 
-    /* Linting (aligné sur frontend) */
+    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -27,6 +28,11 @@
     "erasableSyntaxOnly": false,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/**/*", "prisma/**/*.ts"],
+  "include": [
+    "src/**/*",
+    "prisma/**/*.ts",
+    "vitest.config.ts",
+    "tests/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

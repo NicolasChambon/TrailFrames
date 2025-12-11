@@ -1,33 +1,30 @@
-import { User } from "@/generated/prisma";
-import { NotFoundError, UnauthorizedError } from "@/lib/errors";
+import { UnauthorizedError } from "@/lib/errors";
+import { JwtPayload } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
 import { SummaryActivity } from "@/types/strava";
 import { StravaService } from "./stravaServices";
 
 const stravaService = new StravaService();
 
-export class AntivitiesService {
-  async createAllActivities(trailFramesUserId: string) {
-    const user = await this.getUserOrThrow(trailFramesUserId);
-    const allActivities = await this.fetchAllStravaActivities(user.accessToken);
-    await this.saveActivitiesToDb(user, allActivities);
-  }
-
-  private async getUserOrThrow(trailFramesUserId: string) {
+export class ActivitiesService {
+  async createAllActivities(userPayload: JwtPayload) {
     const user = await prisma.user.findUnique({
-      where: { id: trailFramesUserId },
+      where: { id: userPayload.userId },
     });
-    if (!user) {
-      throw new NotFoundError("User not found");
+
+    if (!user?.stravaAccessToken) {
+      throw new UnauthorizedError("User does not have a Strava access token");
     }
-    if (new Date() > user.expiresAt) {
-      throw new UnauthorizedError("Access token expired");
-    }
-    return user;
+
+    const allActivities = await this.fetchAllStravaActivities(
+      user.stravaAccessToken
+    );
+
+    await this.saveActivitiesToDb(userPayload, allActivities);
   }
 
   private async fetchAllStravaActivities(
-    accessToken: string
+    encryptedStravaAccessToken: string
   ): Promise<SummaryActivity[]> {
     const allActivities: SummaryActivity[] = [];
 
@@ -37,7 +34,7 @@ export class AntivitiesService {
 
     while (shouldFetchMore) {
       const activities = await stravaService.getActivities({
-        accessToken,
+        encryptedStravaAccessToken,
         page,
         perPage,
       });
@@ -60,7 +57,10 @@ export class AntivitiesService {
     return allActivities;
   }
 
-  private async saveActivitiesToDb(user: User, activities: SummaryActivity[]) {
+  private async saveActivitiesToDb(
+    user: JwtPayload,
+    activities: SummaryActivity[]
+  ) {
     console.info(
       `Starting to save ${activities.length} activities to database`
     );
@@ -71,7 +71,7 @@ export class AntivitiesService {
       select: { stravaActivityId: true },
     });
     const existingActivityIds = new Set(
-      existingActivities.map((a) => a.stravaActivityId)
+      existingActivities.map((activity) => activity.stravaActivityId)
     );
 
     console.info(
@@ -91,7 +91,7 @@ export class AntivitiesService {
 
     const activitiesData = activitiesToCreate.map((activity) => ({
       stravaActivityId: activity.id,
-      trailFramesUserId: user.id,
+      trailFramesUserId: user.userId,
       stravaAthleteId: activity.athlete.id,
       stravaUploadId: activity.upload_id ?? null,
       name: activity.name,

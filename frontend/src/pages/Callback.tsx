@@ -15,7 +15,7 @@ export default function Callback() {
   const errorParam = searchParams.get("error");
 
   const { data, error, isLoading } = useSWR<AuthCallbackResponse, Error>(
-    code ? `/auth/strava/callback?code=${code}` : null,
+    code && !errorParam ? `/auth/strava/callback?code=${code}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -26,7 +26,7 @@ export default function Callback() {
 
   useEffect(() => {
     if (errorParam || !code || error) {
-      setTimeout(() => navigate("/"), 3000);
+      setTimeout(() => navigate("/strava-sync"), 3000);
       return;
     }
 
@@ -47,20 +47,20 @@ export default function Callback() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center gap-4">
+    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
       <Spinner className="w-12 h-12" />
       <TypographyH2>
         {isLoading ? "Connection en cours..." : "Redirection..."}
       </TypographyH2>
-    </div>
+    </main>
   );
 }
 
 function ErrorState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center gap-4">
+    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
       <TypographyH2>{children}</TypographyH2>
       <TypographyP>Redirection vers la page d'accueil...</TypographyP>
-    </div>
+    </main>
   );
 }
