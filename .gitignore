@@ -1,3 +1,7 @@
 .vscode
 .env
 *.local
+node_modules
+*local.md
+TODO/*
+TODO.md

@@ -7,7 +7,5 @@ export function TypographyP({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <h2 className={cn("leading-7 not-first:mt-6", className)}>{children}</h2>
-  );
+  return <p className={cn("leading-7", className)}>{children}</p>;
 }

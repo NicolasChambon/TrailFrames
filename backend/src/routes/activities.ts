@@ -1,13 +1,10 @@
 import { Router } from "express";
-import { ActivitiesController } from "@/controllers/activitiesController";
+import { syncActivities } from "@/controllers/activitiesController";
+import { requireAuth } from "@/middlewares/auth";
 
 const router = Router();
 
-const activitiesController = new ActivitiesController();
-
-// PUT /activities/:trailFramesUserId
-router.put("/:trailFramesUserId", (req, res, next) =>
-  activitiesController.syncActivities(req, res, next)
-);
+// PUT /activities
+router.put("/", requireAuth, syncActivities);
 
 export default router;
