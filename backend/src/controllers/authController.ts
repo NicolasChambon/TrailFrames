@@ -3,6 +3,7 @@ import { z } from "zod";
 import { BadRequestError, UnauthorizedError } from "@/lib/errors";
 import {
   clearAuthCookies,
+  JwtPayload,
   REFRESH_COOKIE_NAME,
   setAuthCookies,
   verifyRefreshToken,
@@ -76,22 +77,24 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 // POST /auth/refresh
 export async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
-    const parseResult = z
-      .string()
-      .min(1)
-      .safeParse(req.cookies[REFRESH_COOKIE_NAME]);
-
-    if (!parseResult.success) {
-      throw new BadRequestError(parseResult.error.message);
-    }
-
-    const refreshToken = parseResult.data;
+    const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
 
     if (!refreshToken) {
       throw new BadRequestError("Refresh token not found");
     }
 
-    const payload = verifyRefreshToken(refreshToken);
+    const parseResult = z.string().min(1).safeParse(refreshToken);
+
+    if (!parseResult.success) {
+      throw new BadRequestError("Invalid refresh token format");
+    }
+
+    let payload: JwtPayload;
+    try {
+      payload = verifyRefreshToken(refreshToken);
+    } catch {
+      throw new UnauthorizedError("Invalid or expired refresh token");
+    }
 
     const validation = await tokenService.validateRefreshToken(refreshToken);
 
@@ -110,7 +113,10 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
       message: "Tokens refreshed successfully",
     });
   } catch (error) {
-    await clearAuthCookies(res, req.cookies[REFRESH_COOKIE_NAME]);
+    const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
+    if (refreshToken) {
+      await clearAuthCookies(res, refreshToken);
+    }
     next(error);
   }
 }

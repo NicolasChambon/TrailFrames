@@ -1,3 +1,4 @@
+import { UnauthorizedError } from "@/lib/errors";
 import { JwtPayload } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
 import { SummaryActivity } from "@/types/strava";
@@ -12,7 +13,7 @@ export class ActivitiesService {
     });
 
     if (!user?.stravaAccessToken) {
-      throw new Error("User does not have a Strava access token");
+      throw new UnauthorizedError("User does not have a Strava access token");
     }
 
     const allActivities = await this.fetchAllStravaActivities(
