@@ -8,10 +8,73 @@ const api = axios.create({
   withCredentials: true,
 });
 
+let csrfToken: string | null = null;
+
+export async function fetchCsrfToken(): Promise<void> {
+  try {
+    const response = await api.get("/csrf-token");
+    csrfToken = response.data.csrfToken;
+  } catch (error) {
+    console.error("Failed to fetch CSRF token:", error);
+    throw error;
+  }
+}
+
+api.interceptors.request.use(
+  async (config) => {
+    if (
+      config.method &&
+      ["post", "put", "delete", "patch"].includes(config.method.toLowerCase())
+    ) {
+      if (!csrfToken) {
+        await fetchCsrfToken();
+      }
+
+      if (csrfToken) {
+        config.headers["X-CSRF-Token"] = csrfToken;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.error("API Error:", error.response?.data || error.message);
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.error?.includes("CSRF") &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      await fetchCsrfToken();
+
+      if (csrfToken) {
+        originalRequest.headers["X-CSRF-Token"] = csrfToken;
+      }
+
+      return api(originalRequest);
+    }
+
+    if (import.meta.env.DEV) {
+      console.error("API Error:", {
+        url: originalRequest?.url,
+        method: originalRequest?.method,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    }
+
+    if (error.response?.status === 401) {
+      window.location.href = "/login";
+    }
+
     return Promise.reject(error);
   }
 );

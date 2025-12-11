@@ -1,5 +1,6 @@
 import axios from "axios";
 import "dotenv/config";
+import { decrypt } from "@/lib/encryption";
 import { BadRequestError } from "@/lib/errors";
 import { StravaTokenResponse, SummaryActivity } from "@/types/strava";
 
@@ -35,18 +36,35 @@ export class StravaService {
     return response.data;
   }
 
+  async refreshAccessToken(
+    encryptedStravaRefreshToken: string
+  ): Promise<StravaTokenResponse> {
+    const stravaRefreshToken = decrypt(encryptedStravaRefreshToken);
+
+    const response = await axios.post(`${this.apiUrl}/oauth/token`, {
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      refresh_token: stravaRefreshToken,
+      grant_type: "refresh_token",
+    });
+
+    return response.data;
+  }
+
   async getActivities({
-    accessToken,
+    encryptedStravaAccessToken,
     page = 1,
     perPage = 200,
   }: {
-    accessToken: string;
+    encryptedStravaAccessToken: string;
     page?: number;
     perPage?: number;
   }): Promise<SummaryActivity[]> {
+    const stravaAccessToken = decrypt(encryptedStravaAccessToken);
+
     const response = await axios.get(`${this.apiUrl}/athlete/activities`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${stravaAccessToken}`,
       },
       params: {
         page,

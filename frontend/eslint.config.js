@@ -24,7 +24,7 @@ export default defineConfig([
     rules: {
       "no-console": ["error", { allow: ["error"] }],
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unsafe-assignment": "warn",
+      "@typescript-eslint/no-unsafe-assignment": "off",
       "react/jsx-sort-props": [
         "warn",
         {

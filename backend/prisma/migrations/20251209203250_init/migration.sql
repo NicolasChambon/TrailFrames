@@ -7,32 +7,45 @@ CREATE TYPE "Sex" AS ENUM ('M', 'F', 'O');
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "stravaAthleteId" BIGINT NOT NULL,
-    "accessToken" TEXT NOT NULL,
-    "refreshToken" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "email" TEXT NOT NULL,
+    "stravaAthleteId" BIGINT,
     "username" TEXT,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
+    "lastName" TEXT,
+    "firstName" TEXT,
+    "stravaAccessToken" TEXT,
+    "stravaRefreshToken" TEXT,
+    "stravaTokenExpiresAt" TIMESTAMP(3),
+    "password" TEXT NOT NULL,
     "bio" TEXT,
     "city" TEXT,
     "state" TEXT,
     "country" TEXT,
     "sex" "Sex",
-    "premium" BOOLEAN NOT NULL,
-    "summit" BOOLEAN NOT NULL,
-    "stravaCreatedAt" TIMESTAMP(3) NOT NULL,
-    "stravaUpdatedAt" TIMESTAMP(3) NOT NULL,
-    "badgeTypeId" INTEGER,
     "weight" DOUBLE PRECISION,
     "profileMedium" TEXT,
     "profile" TEXT,
     "friend" INTEGER,
     "follower" INTEGER,
+    "badgeTypeId" INTEGER,
+    "premium" BOOLEAN,
+    "summit" BOOLEAN,
+    "stravaCreatedAt" TIMESTAMP(3),
+    "stravaUpdatedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RefreshToken" (
+    "id" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "RefreshToken_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -41,7 +54,6 @@ CREATE TABLE "Activity" (
     "stravaActivityId" BIGINT NOT NULL,
     "trailFramesUserId" TEXT NOT NULL,
     "stravaAthleteId" BIGINT NOT NULL,
-    "stravaUploadId" BIGINT,
     "name" TEXT NOT NULL,
     "distance" DOUBLE PRECISION NOT NULL,
     "movingTime" INTEGER NOT NULL,
@@ -50,6 +62,7 @@ CREATE TABLE "Activity" (
     "elevHigh" DOUBLE PRECISION,
     "elevLow" DOUBLE PRECISION,
     "sportType" "SportType" NOT NULL,
+    "stravaUploadId" BIGINT,
     "startDate" TIMESTAMP(3) NOT NULL,
     "startDateLocal" TIMESTAMP(3) NOT NULL,
     "timezone" TEXT NOT NULL,
@@ -83,10 +96,31 @@ CREATE TABLE "Activity" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_stravaAthleteId_key" ON "User"("stravaAthleteId");
 
 -- CreateIndex
+CREATE INDEX "User_stravaAthleteId_idx" ON "User"("stravaAthleteId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RefreshToken_token_key" ON "RefreshToken"("token");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Activity_stravaActivityId_key" ON "Activity"("stravaActivityId");
+
+-- CreateIndex
+CREATE INDEX "Activity_trailFramesUserId_idx" ON "Activity"("trailFramesUserId");
+
+-- CreateIndex
+CREATE INDEX "Activity_startDate_idx" ON "Activity"("startDate");
+
+-- CreateIndex
+CREATE INDEX "Activity_sportType_idx" ON "Activity"("sportType");
+
+-- AddForeignKey
+ALTER TABLE "RefreshToken" ADD CONSTRAINT "RefreshToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Activity" ADD CONSTRAINT "Activity_trailFramesUserId_fkey" FOREIGN KEY ("trailFramesUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
