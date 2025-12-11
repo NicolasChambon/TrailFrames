@@ -8,9 +8,33 @@ const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.printf(({ timestamp, level, message, ...meta }) => {
     let msg = `${timestamp} [${level}]: ${message}`;
+
     if (Object.keys(meta).length) {
-      msg += ` ${JSON.stringify(meta)}`;
+      // Function to stringify objects with BigInt support
+      const stringifyWithBigInt = (obj: Record<string, unknown>) => {
+        return JSON.stringify(
+          obj,
+          (_, value) => (typeof value === "bigint" ? value.toString() : value),
+          2 // 2 spaces indentation
+        );
+      };
+
+      // Separate stack trace from other metadata
+      const { stack, ...otherMeta } = meta;
+
+      // Add metadata on a new line with indentation
+      if (Object.keys(otherMeta).length) {
+        msg += `\n  📋 ${stringifyWithBigInt(otherMeta)
+          .split("\n")
+          .join("\n  ")}`;
+      }
+
+      // Added stack trace on a new line if it exists
+      if (stack && typeof stack === "string") {
+        msg += `\n  🔍 Stack trace:\n    ${stack.split("\n").join("\n    ")}`;
+      }
     }
+
     return msg;
   })
 );
