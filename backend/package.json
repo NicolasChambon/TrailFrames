@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "build": "node esbuild.config.js",
     "start": "node dist/index.js",
-    "migrate:deploy": "prisma migrate deploy"
+    "migrate:deploy": "prisma migrate deploy",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
