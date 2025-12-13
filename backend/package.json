@@ -12,7 +12,7 @@
     "build": "node esbuild.config.js",
     "start": "node dist/index.js",
     "migrate:deploy": "prisma migrate deploy",
-    "postinstall": "prisma generate"
+    "postinstall": "tsx --tsconfig tsconfig.json node_modules/.bin/prisma generate"
   },
   "keywords": [],
   "author": "",
