@@ -15,10 +15,18 @@ on:
 
 jobs:
   unit-tests:
+    environment: test
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+
+    env:
+      TEST_DATABASE_URL: ${{secrets.TEST_DATABASE_URL}}
+      JWT_ACCESS_SECRET: ${{secrets.JWT_ACCESS_SECRET}}
+      JWT_REFRESH_SECRET: ${{secrets.JWT_REFRESH_SECRET}}
+      ENCRYPTION_KEY: ${{secrets.ENCRYPTION_KEY}}
+      NODE_ENV: test
 
     steps:
       - name: Checkout code
