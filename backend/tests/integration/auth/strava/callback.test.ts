@@ -4,6 +4,7 @@ import {
   seedTestUsers,
 } from "@tests/helpers/mockData";
 import { getCsrfContext } from "@tests/helpers/testCsrf";
+import { loginUser } from "@tests/helpers/testRegisterUser";
 import { createTestApp } from "@tests/helpers/testServer";
 import { Application } from "express";
 import request from "supertest";
@@ -16,7 +17,6 @@ describe("Strava Authentication Integration Tests", () => {
   let csrfToken: string;
   let cookies: string[];
   let userId: string;
-  let accessToken: string;
 
   beforeEach(async () => {
     app = createTestApp();
@@ -25,27 +25,19 @@ describe("Strava Authentication Integration Tests", () => {
     const users = await seedTestUsers();
     userId = users.bobby.id;
 
-    // Get CSRF token for subsequent requests
-    ({ csrfToken, cookies } = await getCsrfContext(app));
+    // Get CSRF token and initial cookies
+    const csrfContext = await getCsrfContext(app);
+    csrfToken = csrfContext.csrfToken;
 
-    // Login to get access token
-    const loginResponse = await request(app)
-      .post("/auth/login")
-      .set("Cookie", cookies)
-      .set("X-CSRF-Token", csrfToken)
-      .send({
-        email: mockUsers.bobby.email,
-        password: mockUsers.bobby.password,
-      });
-
-    const setCookies = loginResponse.headers["set-cookie"];
-    const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
-
-    const accessCookie = cookieArray.find((cookie: string) =>
-      cookie.startsWith("access_token=")
+    // Login to get authentication cookies
+    const loginContext = await loginUser(
+      app,
+      csrfContext.cookies,
+      csrfToken,
+      mockUsers.bobby.email,
+      mockUsers.bobby.password
     );
-
-    accessToken = accessCookie.split(";")[0].split("=")[1];
+    cookies = loginContext.cookies;
   });
 
   describe("GET /auth/strava/callback", () => {
@@ -54,7 +46,8 @@ describe("Strava Authentication Integration Tests", () => {
 
       const response = await request(app)
         .get(`/auth/strava/callback?code=${mockCode}`)
-        .set("Cookie", [`access_token=${accessToken}`, ...cookies]);
+        .set("Cookie", cookies)
+        .set("X-CSRF-Token", csrfToken);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -85,15 +78,21 @@ describe("Strava Authentication Integration Tests", () => {
     it("should return 400 if code is missing", async () => {
       const response = await request(app)
         .get("/auth/strava/callback")
-        .set("Cookie", [`access_token=${accessToken}`, ...cookies]);
+        .set("Cookie", cookies)
+        .set("X-CSRF-Token", csrfToken);
 
       expect(response.status).toBe(400);
     });
 
     it("should return 401 if user is not authenticated", async () => {
+      // Get only CSRF cookies without auth tokens
+      const { cookies: csrfOnlyCookies, csrfToken: freshCsrfToken } =
+        await getCsrfContext(app);
+
       const response = await request(app)
         .get("/auth/strava/callback?code=some_code")
-        .set("Cookie", cookies);
+        .set("Cookie", csrfOnlyCookies)
+        .set("X-CSRF-Token", freshCsrfToken);
 
       expect(response.status).toBe(401);
     });
