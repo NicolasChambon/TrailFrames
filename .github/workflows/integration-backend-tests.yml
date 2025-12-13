@@ -57,6 +57,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Show npm debug log if failure
+        if: failure()
+        run: |
+          ls -l /home/runner/.npm/_logs
+          cat /home/runner/.npm/_logs/*debug-0.log
+
       - name: Run Prisma migrations
         run: npx prisma migrate deploy
 
