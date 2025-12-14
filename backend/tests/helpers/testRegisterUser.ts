@@ -55,13 +55,10 @@ export async function loginUser(
     .send({ email, password });
 
   if (loginResponse.status !== 200) {
-    console.error("❌ Login failed:", {
-      status: loginResponse.status,
-      body: loginResponse.body,
-      headers: loginResponse.headers,
-    });
     throw new Error(
-      `Login failed: ${loginResponse.status} ${JSON.stringify(loginResponse.body)}`
+      `Login failed: ${loginResponse.status} ${JSON.stringify(
+        loginResponse.body
+      )}`
     );
   }
 
@@ -88,13 +85,6 @@ export async function loginUser(
   );
 
   if (!csrfCookieRaw || !accessCookie || !refreshCookie) {
-    console.error("❌ Missing cookies:", {
-      csrfCookie: !!csrfCookieRaw,
-      accessCookie: !!accessCookie,
-      refreshCookie: !!refreshCookie,
-      csrfCookies,
-      authCookies,
-    });
     throw new Error("Missing required cookies after login");
   }
 
@@ -103,8 +93,6 @@ export async function loginUser(
     extractCookieValue(accessCookie),
     extractCookieValue(refreshCookie),
   ];
-
-  console.log("✅ Login successful, cookies:", allCookies);
 
   // Also return as a single string for maximum compatibility
   const cookieString = allCookies.join("; ");

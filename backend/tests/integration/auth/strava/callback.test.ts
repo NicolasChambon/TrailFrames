@@ -44,17 +44,10 @@ describe("Strava Authentication Integration Tests", () => {
     it("should authenticate with Strava successfully", async () => {
       const mockCode = "mock_authorization_code_12345";
 
-      console.log("🔗 Calling Strava callback with cookies:", cookies);
       const response = await request(app)
         .get(`/auth/strava/callback?code=${mockCode}`)
         .set("Cookie", cookies)
         .set("X-CSRF-Token", csrfToken);
-
-      console.log("📥 Callback response:", {
-        status: response.status,
-        body: response.body,
-        headers: response.headers,
-      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
