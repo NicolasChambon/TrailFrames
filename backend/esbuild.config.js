@@ -7,7 +7,13 @@ await esbuild.build({
   target: "node18",
   format: "esm",
   outfile: "dist/index.js",
-  external: ["@prisma/client", "@prisma/adapter-pg", "pg", ".prisma/client"],
+  external: [
+    "@prisma/client",
+    "@prisma/adapter-pg",
+    "pg",
+    ".prisma/client",
+    "argon2",
+  ],
   sourcemap: true,
   minify: false,
   banner: {

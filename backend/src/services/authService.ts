@@ -108,7 +108,7 @@ export class AuthService {
         },
       });
 
-      console.info(`Token refreshed for user: ${user.id}`);
+      logger.info(`Token refreshed for user: ${user.id}`);
 
       logger.info("Strava token refreshed", {
         userId: user.id,
