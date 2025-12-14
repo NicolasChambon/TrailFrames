@@ -51,7 +51,7 @@ app.use(express.json());
 // Public routes BEFORE csrfProtection
 // Health check endpoint
 app.get("/health", (_req, res) => {
-  logger.debug("Health check performesd");
+  logger.debug("Health check performed");
   res.json({ status: "ok", message: "Backend is running" });
 });
 // Endpoint to get CSRF token
