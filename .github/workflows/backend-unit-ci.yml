@@ -11,8 +11,7 @@ on:
       - ".github/workflows/integration-backend-tests.yml"
 
 jobs:
-  name: Backend Unit Tests
-  unit-tests:
+  backend-unit-tests:
     environment: test
     runs-on: ubuntu-latest
     defaults:
