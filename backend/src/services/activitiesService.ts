@@ -1,5 +1,6 @@
 import { UnauthorizedError } from "@/lib/errors";
 import { JwtPayload } from "@/lib/jwt";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { SummaryActivity } from "@/types/strava";
 import { StravaService } from "./stravaServices";
@@ -43,7 +44,7 @@ export class ActivitiesService {
         shouldFetchMore = false;
       } else {
         allActivities.push(...activities);
-        console.info(`Fetched page ${page}: ${activities.length} activities`);
+        logger.info(`Fetched page ${page}: ${activities.length} activities`);
 
         if (activities.length < perPage) {
           shouldFetchMore = false;
@@ -53,7 +54,7 @@ export class ActivitiesService {
       }
     }
 
-    console.info(`Total activities fetched: ${allActivities.length}`);
+    logger.info(`Total activities fetched: ${allActivities.length}`);
     return allActivities;
   }
 
@@ -61,9 +62,7 @@ export class ActivitiesService {
     user: JwtPayload,
     activities: SummaryActivity[]
   ) {
-    console.info(
-      `Starting to save ${activities.length} activities to database`
-    );
+    logger.info(`Starting to save ${activities.length} activities to database`);
 
     const stravaActivityIds = activities.map((activity) => activity.id);
     const existingActivities = await prisma.activity.findMany({
@@ -74,7 +73,7 @@ export class ActivitiesService {
       existingActivities.map((activity) => activity.stravaActivityId)
     );
 
-    console.info(
+    logger.info(
       `Found ${existingActivityIds.size} activities already in database`
     );
 
@@ -83,11 +82,11 @@ export class ActivitiesService {
     );
 
     if (activitiesToCreate.length === 0) {
-      console.info("No new activities to create");
+      logger.info("No new activities to create");
       return [];
     }
 
-    console.info(`Creating ${activitiesToCreate.length} new activities`);
+    logger.info(`Creating ${activitiesToCreate.length} new activities`);
 
     const activitiesData = activitiesToCreate.map((activity) => ({
       stravaActivityId: activity.id,
@@ -135,7 +134,7 @@ export class ActivitiesService {
       skipDuplicates: true,
     });
 
-    console.info(`Successfully created ${result.count} activities in database`);
+    logger.info(`Successfully created ${result.count} activities in database`);
 
     return result;
   }
