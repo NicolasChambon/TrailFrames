@@ -37,19 +37,42 @@ describe("Activities Sync Integration Tests", () => {
       );
       cookies = loginContext.cookies;
 
+      console.log("🔐 Cookies before Strava callback:", cookies);
+
       // Authenticate user with Strava
       const mockCode = "mock_authorization_code_12345";
-      await request(app)
+      const callbackResponse = await request(app)
         .get(`/auth/strava/callback?code=${mockCode}`)
         .set("Cookie", cookies)
         .set("X-CSRF-Token", csrfToken);
+
+      console.log("🔗 Strava callback response:", {
+        status: callbackResponse.status,
+        body: callbackResponse.body,
+      });
+
+      // Update cookies if the callback returned new ones
+      if (callbackResponse.headers["set-cookie"]) {
+        const newCookies = Array.isArray(
+          callbackResponse.headers["set-cookie"]
+        )
+          ? callbackResponse.headers["set-cookie"]
+          : [callbackResponse.headers["set-cookie"]];
+        console.log("🍪 New cookies from callback:", newCookies);
+      }
     });
 
     it("should sync activities successfully", async () => {
+      console.log("📤 Syncing activities with cookies:", cookies);
       const response = await request(app)
         .put("/activities")
         .set("Cookie", cookies)
         .set("X-CSRF-Token", csrfToken);
+
+      console.log("📥 Sync response:", {
+        status: response.status,
+        body: response.body,
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);

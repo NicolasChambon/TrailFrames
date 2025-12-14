@@ -55,6 +55,11 @@ export async function loginUser(
     .send({ email, password });
 
   if (loginResponse.status !== 200) {
+    console.error("❌ Login failed:", {
+      status: loginResponse.status,
+      body: loginResponse.body,
+      headers: loginResponse.headers,
+    });
     throw new Error(
       `Login failed: ${loginResponse.status} ${JSON.stringify(loginResponse.body)}`
     );
@@ -66,9 +71,15 @@ export async function loginUser(
   const setCookies = loginResponse.headers["set-cookie"];
   const authCookies = Array.isArray(setCookies) ? setCookies : [setCookies];
 
+  // Extract cookie name=value pairs without metadata (HttpOnly, Secure, etc.)
+  // This ensures consistent cookie handling across different environments
+  const extractCookieValue = (cookie: string) => {
+    return cookie.split(";")[0]; // Get only "name=value" part
+  };
+
   // Merge CSRF cookies with auth cookies
   // Keep CSRF cookie from original cookies, add access_token and refresh_token
-  const csrfCookie = csrfCookies.find((c) => c.startsWith("_csrf="));
+  const csrfCookieRaw = csrfCookies.find((c) => c.startsWith("_csrf="));
   const accessCookie = authCookies.find((c: string) =>
     c.startsWith("access_token=")
   );
@@ -76,7 +87,27 @@ export async function loginUser(
     c.startsWith("refresh_token=")
   );
 
-  const allCookies = [csrfCookie, accessCookie, refreshCookie].filter(Boolean);
+  if (!csrfCookieRaw || !accessCookie || !refreshCookie) {
+    console.error("❌ Missing cookies:", {
+      csrfCookie: !!csrfCookieRaw,
+      accessCookie: !!accessCookie,
+      refreshCookie: !!refreshCookie,
+      csrfCookies,
+      authCookies,
+    });
+    throw new Error("Missing required cookies after login");
+  }
 
-  return { userId, cookies: allCookies as string[] };
+  const allCookies = [
+    extractCookieValue(csrfCookieRaw),
+    extractCookieValue(accessCookie),
+    extractCookieValue(refreshCookie),
+  ];
+
+  console.log("✅ Login successful, cookies:", allCookies);
+
+  // Also return as a single string for maximum compatibility
+  const cookieString = allCookies.join("; ");
+
+  return { userId, cookies: allCookies, cookieString };
 }
