@@ -1,5 +1,6 @@
 import { mockStravaActivities, seedTestUsers } from "@tests/helpers/mockData";
 import { getCsrfContext } from "@tests/helpers/testCsrf";
+import { loginUser } from "@tests/helpers/testRegisterUser";
 import { createTestApp } from "@tests/helpers/testServer";
 import { Application } from "express";
 import request from "supertest";
@@ -11,7 +12,6 @@ describe("Activities Sync Integration Tests", () => {
     let app: Application;
     let csrfToken: string;
     let cookies: string[];
-    let accessToken: string;
     let userId: string;
 
     beforeEach(async () => {
@@ -25,28 +25,26 @@ describe("Activities Sync Integration Tests", () => {
       const { bobby } = await seedTestUsers();
       userId = bobby.id;
 
-      // Get CSRF token
-      ({ csrfToken, cookies } = await getCsrfContext(app));
+      // Get CSRF token and initial cookies
+      const csrfContext = await getCsrfContext(app);
+      csrfToken = csrfContext.csrfToken;
 
-      // Create access token manually for bobby (to avoid rate limit)
-      const jwt = (await import("jsonwebtoken")).default;
-      accessToken = jwt.sign(
-        { userId: bobby.id, email: bobby.email },
-        process.env.JWT_ACCESS_SECRET!,
-        { expiresIn: "15m" }
-      );
+      // Login user to get authentication cookies
+      const loginContext = await loginUser(app, csrfContext.cookies, csrfToken);
+      cookies = loginContext.cookies;
 
       // Authenticate user with Strava
       const mockCode = "mock_authorization_code_12345";
       await request(app)
         .get(`/auth/strava/callback?code=${mockCode}`)
-        .set("Cookie", [`access_token=${accessToken}`, ...cookies]);
+        .set("Cookie", cookies)
+        .set("X-CSRF-Token", csrfToken);
     });
 
     it("should sync activities successfully", async () => {
       const response = await request(app)
         .put("/activities")
-        .set("Cookie", [`access_token=${accessToken}`, ...cookies])
+        .set("Cookie", cookies)
         .set("X-CSRF-Token", csrfToken);
 
       expect(response.status).toBe(200);
@@ -71,43 +69,38 @@ describe("Activities Sync Integration Tests", () => {
     });
 
     it("should return 401 if user is not authenticated", async () => {
+      // Get only CSRF cookies without auth tokens
+      const { cookies: csrfOnlyCookies, csrfToken: freshCsrfToken } =
+        await getCsrfContext(app);
+
       const response = await request(app)
         .put("/activities")
-        .set("Cookie", cookies)
-        .set("X-CSRF-Token", csrfToken);
+        .set("Cookie", csrfOnlyCookies)
+        .set("X-CSRF-Token", freshCsrfToken);
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
     });
 
     it("should return 401 if user has no Strava tokens", async () => {
+      // Get fresh CSRF context for scarlet
+      const { cookies: csrfCookies, csrfToken: freshCsrfToken } =
+        await getCsrfContext(app);
+
       // Login as scarlet (already seeded in beforeEach)
-      const loginResponse = await request(app)
-        .post("/auth/login")
-        .set("Cookie", cookies)
-        .set("X-CSRF-Token", csrfToken)
-        .send({
-          email: "scarlet@example.com",
-          password: "AnotherPass456!",
-        });
-
-      const setCookies = Array.isArray(loginResponse.headers["set-cookie"])
-        ? loginResponse.headers["set-cookie"]
-        : [loginResponse.headers["set-cookie"]];
-
-      const scarletAccessCookie = setCookies.find(
-        (cookie: string | undefined) => cookie?.startsWith("access_token=")
+      const { cookies: scarletCookies } = await loginUser(
+        app,
+        csrfCookies,
+        freshCsrfToken,
+        "scarlet@example.com",
+        "AnotherPass456!"
       );
-
-      const scarletAccessToken = scarletAccessCookie!
-        .split(";")[0]
-        .split("=")[1];
 
       // Try to sync activities without Strava auth
       const response = await request(app)
         .put("/activities")
-        .set("Cookie", [`access_token=${scarletAccessToken}`, ...cookies])
-        .set("X-CSRF-Token", csrfToken);
+        .set("Cookie", scarletCookies)
+        .set("X-CSRF-Token", freshCsrfToken);
 
       expect(response.status).toBe(401);
     });
@@ -116,13 +109,13 @@ describe("Activities Sync Integration Tests", () => {
       // First sync
       await request(app)
         .put("/activities")
-        .set("Cookie", [`access_token=${accessToken}`, ...cookies])
+        .set("Cookie", cookies)
         .set("X-CSRF-Token", csrfToken);
 
       // Second sync
       await request(app)
         .put("/activities")
-        .set("Cookie", [`access_token=${accessToken}`, ...cookies])
+        .set("Cookie", cookies)
         .set("X-CSRF-Token", csrfToken);
 
       // Verify no duplicates
