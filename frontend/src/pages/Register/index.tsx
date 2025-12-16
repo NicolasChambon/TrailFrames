@@ -16,6 +16,7 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { TypographyP } from "@/components/ui/typographyP";
+import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { useMutation } from "@/lib/useMutation";
 import {
@@ -23,8 +24,11 @@ import {
   isPasswordStrong,
 } from "@/pages/Register/passwordValidation";
 import { ValidationMessage } from "@/pages/Register/ValidationMessage";
+import type { RegisterResponse } from "@/types/auth";
 
 export default function Register() {
+  const { login: setAuthUser } = useAuth();
+
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -42,16 +46,19 @@ export default function Register() {
     isLoading,
     error,
     data,
-  } = useMutation(() => api.post("/auth/register", { email, password }));
+  } = useMutation<RegisterResponse>(() =>
+    api.post("/auth/register", { email, password })
+  );
 
   useEffect(() => {
     if (data && !error) {
+      setAuthUser(data.user);
       const timer = setTimeout(() => {
         navigate("/strava-sync");
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [data, error, navigate]);
+  }, [data, error, navigate, setAuthUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +79,9 @@ export default function Register() {
               </CardDescription>
               <CardAction>
                 <Link to="/login">
-                  <Button variant="link">Connexion </Button>
+                  <Button type="button" variant="link">
+                    Connexion{" "}
+                  </Button>
                 </Link>
               </CardAction>
             </CardHeader>

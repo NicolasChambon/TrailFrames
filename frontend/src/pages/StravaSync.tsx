@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { TypographyH1 } from "@/components/ui/typographyH1";
 import { generateStravaAuthUrl } from "@/lib/stravaAuth";
 
+// TODO: plan to implement a header with a logout button
 export default function StravaSync() {
   const handleConnectStrava = () => {
     const authUrl = generateStravaAuthUrl();

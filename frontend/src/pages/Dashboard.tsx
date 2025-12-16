@@ -4,13 +4,18 @@ import { TypographyP } from "@/components/ui/typographyP";
 import api from "@/lib/api";
 import { useMutation } from "@/lib/useMutation";
 
-export default function Pictures() {
+interface SyncActivitiesResponse {
+  success: boolean;
+}
+
+// TODO: plan to implement a header with a logout button
+export default function Dashboard() {
   const {
     mutate: fetchActivities,
     isLoading,
     error,
     data,
-  } = useMutation(() => api.put(`/activities`));
+  } = useMutation<SyncActivitiesResponse>(() => api.put(`/activities`));
 
   const handleFetchActivities = async () => {
     // if (!trailFramesUserId) return;
