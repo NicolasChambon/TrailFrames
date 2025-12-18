@@ -95,8 +95,10 @@ async function runTests() {
         process.exit(0);
       }
 
+      process.env.TEST_TYPE = "unit";
+
       command = "npx";
-      args = ["vitest", `tests/unit/${fileChoice.file}`];
+      args = ["vitest", "--run", `tests/unit/${fileChoice.file}`];
       break;
     }
 
@@ -123,8 +125,10 @@ async function runTests() {
         process.exit(0);
       }
 
+      process.env.TEST_TYPE = "integration";
+
       command = "npx";
-      args = ["vitest", `tests/integration/${fileChoice.file}`];
+      args = ["vitest", "--run", `tests/integration/${fileChoice.file}`];
       break;
     }
   }

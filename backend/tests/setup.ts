@@ -1,8 +1,8 @@
-import { beforeAll, afterAll, afterEach } from "vitest";
+import { beforeAll, afterAll, afterEach, beforeEach } from "vitest";
+import { logger } from "@/lib/logger";
 import { setupTestDb, clearTestDb } from "./helpers/testDb";
 import { server as mockServer } from "./mocks/strava.mock";
 import "dotenv/config";
-import { logger } from "@/lib/logger";
 
 /**
  * Global configuration for all integration tests
@@ -68,14 +68,25 @@ beforeAll(async () => {
 });
 
 /**
+ * beforeEach - Executed before EACH test
+ * Guarantee test isolation by cleaning database before each test
+ */
+beforeEach(async () => {
+  try {
+    // Clear all test data before each test to ensure isolation
+    await clearTestDb();
+  } catch (error) {
+    console.error("❌ Failed to clean before test:", error);
+    throw error;
+  }
+});
+
+/**
  * afterEach - Executed after EACH test
- * Guarantee test isolation by cleaning database
+ * Reset mock handlers
  */
 afterEach(async () => {
   try {
-    // Clear all test data
-    await clearTestDb();
-
     // Reset all mock servers handlers
     mockServer.resetHandlers();
   } catch (error) {
