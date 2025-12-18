@@ -26,13 +26,12 @@ describe("Strava Authentication Integration Tests", () => {
     userId = users.bobby.id;
 
     // Get CSRF token and initial cookies
-    const csrfContext = await getCsrfContext(app);
-    csrfToken = csrfContext.csrfToken;
+    ({ csrfToken, cookies } = await getCsrfContext(app));
 
     // Login to get authentication cookies
     const loginContext = await loginUser(
       app,
-      csrfContext.cookies,
+      cookies,
       csrfToken,
       mockUsers.bobby.email,
       mockUsers.bobby.password

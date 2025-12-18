@@ -1,5 +1,6 @@
 import { seedTestUsers } from "@tests/helpers/mockData";
 import { getCsrfContext } from "@tests/helpers/testCsrf";
+import { loginUser } from "@tests/helpers/testRegisterUser";
 import { createTestApp } from "@tests/helpers/testServer";
 import { Application } from "express";
 import request from "supertest";
@@ -11,6 +12,7 @@ describe("Refresh Token Integration Tests", () => {
     let app: Application;
     let csrfToken: string;
     let cookies: string[];
+    let authenticatedCookies: string[];
     let refreshToken: string;
 
     beforeEach(async () => {
@@ -23,26 +25,15 @@ describe("Refresh Token Integration Tests", () => {
       // Get CSRF token
       ({ csrfToken, cookies } = await getCsrfContext(app));
 
-      // Login to get refresh token
-      const loginResponse = await request(app)
-        .post("/auth/login")
-        .set("Cookie", cookies)
-        .set("X-CSRF-Token", csrfToken)
-        .send({
-          email: "bobby@example.com",
-          password: "SecurePass123!",
-        });
+      // Login to get authentication cookies
+      const loginContext = await loginUser(app, cookies, csrfToken);
+      authenticatedCookies = loginContext.cookies;
 
-      // Extract refresh token from cookies
-      const setCookies = Array.isArray(loginResponse.headers["set-cookie"])
-        ? loginResponse.headers["set-cookie"]
-        : [loginResponse.headers["set-cookie"]];
-
-      const refreshCookie = setCookies.find((cookie: string | undefined) =>
-        cookie?.startsWith("refresh_token=")
+      // Extract refresh token value for database verification
+      const refreshCookie = authenticatedCookies.find((cookie) =>
+        cookie.startsWith("refresh_token=")
       );
-
-      refreshToken = refreshCookie!.split(";")[0].split("=")[1];
+      refreshToken = refreshCookie!.split("=")[1];
     });
 
     it("should refresh tokens successfully", async () => {
@@ -57,7 +48,7 @@ describe("Refresh Token Integration Tests", () => {
 
       const response = await request(app)
         .post("/auth/refresh")
-        .set("Cookie", [`refresh_token=${refreshToken}`, ...cookies])
+        .set("Cookie", authenticatedCookies)
         .set("X-CSRF-Token", csrfToken);
 
       expect(response.status).toBe(200);
@@ -118,7 +109,7 @@ describe("Refresh Token Integration Tests", () => {
       // First refresh - should succeed
       const firstRefresh = await request(app)
         .post("/auth/refresh")
-        .set("Cookie", [`refresh_token=${refreshToken}`, ...cookies])
+        .set("Cookie", authenticatedCookies)
         .set("X-CSRF-Token", csrfToken);
 
       expect(firstRefresh.status).toBe(200);
@@ -126,7 +117,7 @@ describe("Refresh Token Integration Tests", () => {
       // Second refresh with same token - should fail
       const secondRefresh = await request(app)
         .post("/auth/refresh")
-        .set("Cookie", [`refresh_token=${refreshToken}`, ...cookies])
+        .set("Cookie", authenticatedCookies)
         .set("X-CSRF-Token", csrfToken);
 
       expect(secondRefresh.status).toBe(401);
