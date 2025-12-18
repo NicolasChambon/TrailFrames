@@ -41,12 +41,9 @@ async function runTests() {
     message: "Which tests do you want to run?",
     choices: [
       { title: "All tests", value: "all" },
-      { title: "All unit tests", value: "unit-all" },
-      { title: "All integration tests", value: "integration-all" },
-      { title: "One specific unit test file", value: "unit-single" },
       {
-        title: "One specific integration test file",
-        value: "integration-single",
+        title: "One specific test file",
+        value: "specific",
       },
     ],
   });
@@ -64,21 +61,13 @@ async function runTests() {
       args.push("test:all");
       break;
 
-    case "unit-all":
-      args.push("test:unit");
-      break;
-
-    case "integration-all":
-      args.push("test:integration");
-      break;
-
-    case "unit-single": {
-      const unitFiles = await getTestFiles("unit");
+    case "specific": {
+      const files = await getTestFiles("");
       const fileChoice = await prompts({
         type: "autocomplete",
         name: "file",
-        message: "Choose a unit test file:",
-        choices: unitFiles.map((file) => ({
+        message: "Choose a test file:",
+        choices: files.map((file) => ({
           title: file,
           value: file,
         })),
@@ -96,35 +85,7 @@ async function runTests() {
       }
 
       command = "npx";
-      args = ["vitest", `tests/unit/${fileChoice.file}`];
-      break;
-    }
-
-    case "integration-single": {
-      const integrationFiles = await getTestFiles("integration");
-      const fileChoice = await prompts({
-        type: "autocomplete",
-        name: "file",
-        message: "Choose an integration test file:",
-        choices: integrationFiles.map((file) => ({
-          title: file,
-          value: file,
-        })),
-        suggest: (input, choices) => {
-          const inputLower = input.toLowerCase();
-          return choices.filter((choice) =>
-            choice.title.toLowerCase().includes(inputLower)
-          );
-        },
-      });
-
-      if (!fileChoice.file) {
-        console.log("Cancelled.");
-        process.exit(0);
-      }
-
-      command = "npx";
-      args = ["vitest", `tests/integration/${fileChoice.file}`];
+      args = ["vitest", `tests/${fileChoice.file}`];
       break;
     }
   }

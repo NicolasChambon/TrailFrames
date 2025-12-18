@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { generateStravaAuthUrl } from "../lib/stravaAuth";
+import { generateStravaAuthUrl } from "../src/lib/stravaAuth";
 
 describe("stravaAuth", () => {
   beforeEach(() => {
@@ -69,7 +69,7 @@ describe("stravaAuth", () => {
 
       // Re-import to get new env values
       const { generateStravaAuthUrl: freshGenerate } = await import(
-        "../lib/stravaAuth"
+        "../src/lib/stravaAuth"
       );
 
       const url = freshGenerate();
