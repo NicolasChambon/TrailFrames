@@ -63,12 +63,19 @@ api.interceptors.response.use(
     }
 
     if (import.meta.env.DEV) {
-      console.error("API Error:", {
-        url: originalRequest?.url,
-        method: originalRequest?.method,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
+      // Don't log 401 errors on auth check - it's expected for unauthenticated users
+      const isAuthCheck =
+        originalRequest?.url === "/auth/current-user" &&
+        error.response?.status === 401;
+
+      if (!isAuthCheck) {
+        console.error("API Error:", {
+          url: originalRequest?.url,
+          method: originalRequest?.method,
+          status: error.response?.status,
+          data: error.response?.data,
+        });
+      }
     }
 
     return Promise.reject(error);
