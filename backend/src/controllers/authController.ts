@@ -38,9 +38,14 @@ export async function register(
       email: user.email,
     });
 
+    const userResponse = {
+      ...user,
+      stravaAthleteId: user.stravaAthleteId?.toString() ?? null,
+    };
+
     res.status(201).json({
       success: true,
-      user,
+      user: userResponse,
     });
   } catch (error) {
     next(error);
@@ -65,9 +70,14 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       email: user.email,
     });
 
+    const userResponse = {
+      ...user,
+      stravaAthleteId: user.stravaAthleteId?.toString() ?? null,
+    };
+
     res.status(200).json({
       success: true,
-      user,
+      user: userResponse,
     });
   } catch (error) {
     next(error);
@@ -133,6 +143,39 @@ export async function logout(req: Request, res: Response) {
     success: true,
     message: "Logged out successfully",
   });
+}
+
+// GET /auth/current-user
+export async function getCurrentUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new UnauthorizedError("User not authenticated");
+    }
+
+    const user = await authService.getUserById(userId);
+
+    if (!user) {
+      throw new UnauthorizedError("User not found");
+    }
+
+    const userResponse = {
+      ...user,
+      stravaAthleteId: user.stravaAthleteId?.toString() ?? null,
+    };
+
+    res.status(200).json({
+      success: true,
+      user: userResponse,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
 // GET /auth/strava/callback?code=AUTH_CODE

@@ -12,6 +12,28 @@ import { StravaService } from "./stravaServices";
 
 const stravaService = new StravaService();
 
+const safeUserProperties = {
+  id: true,
+  email: true,
+  stravaAthleteId: true,
+  username: true,
+  firstName: true,
+  lastName: true,
+  bio: true,
+  city: true,
+  state: true,
+  country: true,
+  sex: true,
+  weight: true,
+  profileMedium: true,
+  profile: true,
+  friend: true,
+  follower: true,
+  badgeTypeId: true,
+  premium: true,
+  summit: true,
+};
+
 export class AuthService {
   async registerUser(input: RegisterInput) {
     const existingUser = await prisma.user.findUnique({
@@ -19,7 +41,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new BadRequestError("Email already in use");
+      throw new BadRequestError("Cette adresse email est déjà utilisée.");
     }
 
     const hashedPassword = await argon2.hash(input.password);
@@ -29,11 +51,10 @@ export class AuthService {
         email: input.email,
         password: hashedPassword,
       },
+      select: safeUserProperties,
     });
 
-    const { password: _, ...userWithoutPassword } = user;
-
-    return userWithoutPassword;
+    return user;
   }
 
   async authenticateWithStrava(code: string, trailFramesUserId: string) {
@@ -128,17 +149,37 @@ export class AuthService {
     });
 
     if (!user || !user.password) {
-      throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError("Mot de passe ou email invalide");
     }
 
     const isPasswordValid = await argon2.verify(user.password, input.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError("Mot de passe ou email invalide");
     }
 
-    const { password: _, ...userWithoutPassword } = user;
+    const safeUser = await prisma.user.findUnique({
+      where: { email },
+      select: safeUserProperties,
+    });
 
-    return userWithoutPassword;
+    if (!safeUser) {
+      throw new NotFoundError("User not found");
+    }
+
+    return safeUser;
+  }
+
+  async getUserById(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: safeUserProperties,
+    });
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    return user;
   }
 }

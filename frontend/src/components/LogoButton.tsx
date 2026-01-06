@@ -15,7 +15,7 @@ const LogoButton = () => {
         <img
           alt="trailframes logo"
           height={size}
-          src="../../public/trail-frame-logo-white.svg"
+          src="/trail-frame-logo-white.svg"
           width={size}
         />
       </div>
