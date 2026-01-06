@@ -1,3 +1,4 @@
+import LogoutButton from "@/components/LogoutButton";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { TypographyP } from "@/components/ui/typographyP";
@@ -23,29 +24,32 @@ export default function Dashboard() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
-      <h2 className="text-2xl font-bold">Your Strava Activities</h2>
+    <>
+      <LogoutButton />
+      <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+        <h2 className="text-2xl font-bold">Your Strava Activities</h2>
 
-      <Button
-        // disabled={isLoading || !trailFramesUserId}
-        onClick={handleFetchActivities}
-      >
-        {isLoading ? (
-          <>
-            <Spinner className="w-4 h-4 mr-2" />
-            Fetching...
-          </>
-        ) : (
-          "Fetch Activities"
+        <Button
+          // disabled={isLoading || !trailFramesUserId}
+          onClick={handleFetchActivities}
+        >
+          {isLoading ? (
+            <>
+              <Spinner className="w-4 h-4 mr-2" />
+              Fetching...
+            </>
+          ) : (
+            "Fetch Activities"
+          )}
+        </Button>
+
+        {error && <p className="text-red-500">{error}</p>}
+        {data && (
+          <TypographyP className="text-green-500">
+            Activities fetched successfully!
+          </TypographyP>
         )}
-      </Button>
-
-      {error && <p className="text-red-500">{error}</p>}
-      {data && (
-        <TypographyP className="text-green-500">
-          Activities fetched successfully!
-        </TypographyP>
-      )}
-    </main>
+      </main>
+    </>
   );
 }

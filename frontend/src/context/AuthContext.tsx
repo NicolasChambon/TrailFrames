@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import api from "@/lib/api";
+import { useMutation } from "@/lib/useMutation";
 import type { CurrentUserResponse, User } from "@/types/auth";
 
 interface AuthContextType {
@@ -46,8 +47,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(user);
   };
 
-  const logout = () => {
-    setUser(null);
+  const { mutate: logoutUser } = useMutation<void>(() =>
+    api.post("/auth/logout")
+  );
+
+  const logout = async () => {
+    try {
+      await logoutUser();
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const value = {

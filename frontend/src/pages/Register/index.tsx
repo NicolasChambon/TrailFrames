@@ -1,7 +1,9 @@
+import { AlertCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import LogoButton from "@/components/LogoButton";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,9 +17,9 @@ import {
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { TypographyP } from "@/components/ui/typographyP";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
+import { formatError } from "@/lib/formatError";
 import { useMutation } from "@/lib/useMutation";
 import {
   getPasswordValidation,
@@ -49,6 +51,8 @@ export default function Register() {
   } = useMutation<RegisterResponse>(() =>
     api.post("/auth/register", { email, password })
   );
+
+  const formatedErr = formatError(error);
 
   useEffect(() => {
     if (data && !error) {
@@ -186,9 +190,10 @@ export default function Register() {
                 {data && !error && "Inscription réussie !"}
               </Button>
               {error && (
-                <TypographyP className="text-red-500 text-sm">
-                  {error}
-                </TypographyP>
+                <Alert variant="destructive">
+                  <AlertCircleIcon />
+                  <AlertTitle>{formatedErr}</AlertTitle>
+                </Alert>
               )}
             </CardFooter>
           </form>

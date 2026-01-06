@@ -41,7 +41,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new BadRequestError("Email already in use");
+      throw new BadRequestError("Cette adresse email est déjà utilisée.");
     }
 
     const hashedPassword = await argon2.hash(input.password);
@@ -149,13 +149,13 @@ export class AuthService {
     });
 
     if (!user || !user.password) {
-      throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError("Mot de passe ou email invalide");
     }
 
     const isPasswordValid = await argon2.verify(user.password, input.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError("Mot de passe ou email invalide");
     }
 
     const safeUser = await prisma.user.findUnique({

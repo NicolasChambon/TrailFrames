@@ -40,3 +40,8 @@ export interface AuthCallbackResponse {
   trailFramesUserId: string;
   message: string;
 }
+
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}

@@ -1,6 +1,8 @@
+import { AlertCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import LogoButton from "@/components/LogoButton";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,9 +16,9 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { TypographyP } from "@/components/ui/typographyP";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
+import { formatError } from "@/lib/formatError";
 import { useMutation } from "@/lib/useMutation";
 import type { LoginResponse } from "@/types/auth";
 
@@ -36,6 +38,8 @@ export default function Login() {
   } = useMutation<LoginResponse>(() =>
     api.post("/auth/login", { email, password })
   );
+
+  const formatedErr = formatError(error);
 
   useEffect(() => {
     if (data && !error) {
@@ -118,9 +122,10 @@ export default function Login() {
                 {data && !error && "Connecté !"}
               </Button>
               {error && (
-                <TypographyP className="text-red-500 text-sm">
-                  {error}
-                </TypographyP>
+                <Alert variant="destructive">
+                  <AlertCircleIcon />
+                  <AlertTitle>{formatedErr}</AlertTitle>
+                </Alert>
               )}
             </CardFooter>
           </form>
