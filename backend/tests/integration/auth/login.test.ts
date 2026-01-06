@@ -66,7 +66,7 @@ describe("User Login Integration Tests", () => {
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain("Invalid email or password");
+      expect(response.body.error).toContain("Mot de passe ou email invalide");
     });
 
     it("should return 401 if user does not exist", async () => {
@@ -81,7 +81,7 @@ describe("User Login Integration Tests", () => {
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain("Invalid email or password");
+      expect(response.body.error).toContain("Mot de passe ou email invalide");
     });
 
     it("should return 403 without CSRF token", async () => {

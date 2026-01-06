@@ -1,7 +1,9 @@
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
 import { useState } from "react";
 
-export function useMutation<T = void>(mutationFn: () => Promise<T>) {
+export function useMutation<T = void>(
+  mutationFn: () => Promise<AxiosResponse<T>>
+) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<T | null>(null);
@@ -11,7 +13,8 @@ export function useMutation<T = void>(mutationFn: () => Promise<T>) {
     setError(null);
 
     try {
-      const result = await mutationFn();
+      const response = await mutationFn();
+      const result = response.data;
       setData(result);
       return result;
     } catch (error) {

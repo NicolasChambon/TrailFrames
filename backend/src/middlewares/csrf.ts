@@ -26,14 +26,14 @@ export function csrfErrorHandler(
   res: Response,
   next: NextFunction
 ) {
-  logError(error, {
-    path: req.path,
-    method: req.method,
-    ip: req.ip,
-    userId: req.user?.userId,
-  });
-
+  // Only handle CSRF-specific errors here
   if ("code" in error && error.code === "EBADCSRFTOKEN") {
+    logError(error, {
+      path: req.path,
+      method: req.method,
+      ip: req.ip,
+      userId: req.user?.userId,
+    });
     return res.status(403).json({
       success: false,
       error: "Invalid CSRF token. Please refresh the page and try again.",

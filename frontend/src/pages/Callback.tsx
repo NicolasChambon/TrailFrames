@@ -1,6 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
 import { TypographyH2 } from "@/components/ui/typographyH2";
 import { TypographyP } from "@/components/ui/typographyP";
@@ -32,7 +39,7 @@ export default function Callback() {
 
     if (data?.success) {
       localStorage.setItem("trailFramesUserId", data.trailFramesUserId);
-      navigate("/pictures");
+      navigate("/dashboard");
     }
   }, [data, error, code, errorParam, navigate]);
 
@@ -48,10 +55,21 @@ export default function Callback() {
 
   return (
     <main className="min-h-screen flex flex-col justify-center items-center gap-4">
-      <Spinner className="w-12 h-12" />
-      <TypographyH2>
-        {isLoading ? "Connection en cours..." : "Redirection..."}
-      </TypographyH2>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Spinner />
+          </EmptyMedia>
+          <EmptyTitle>
+            {isLoading ? "Connection en cours..." : "Redirection..."}
+          </EmptyTitle>
+          <EmptyDescription>
+            {isLoading
+              ? "Veuillez patienter pendant que nous vous connectons à votre compte Strava."
+              : "Vous allez être redirigé vers la page d'accueil."}
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     </main>
   );
 }

@@ -31,17 +31,23 @@ export function errorHandler(
   res: Response,
   _: NextFunction
 ) {
-  logError(error, {
-    path: req.path,
-    method: req.method,
-    ip: req.ip,
-    userId: req.user?.userId,
-  });
-
   const statusCode =
     "statusCode" in error && typeof error.statusCode === "number"
       ? error.statusCode
       : 500;
+
+  // Don't log 401 errors on auth check endpoint - it's a normal case for unauthenticated users
+  const isAuthCheck =
+    req.originalUrl.includes("/auth/current-user") && statusCode === 401;
+
+  if (!isAuthCheck) {
+    logError(error, {
+      path: req.path,
+      method: req.method,
+      ip: req.ip,
+      userId: req.user?.userId,
+    });
+  }
 
   const response: { success: false; error: string; details?: string } = {
     success: false,
