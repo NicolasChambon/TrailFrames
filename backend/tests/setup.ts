@@ -1,4 +1,5 @@
-import { beforeAll, afterAll, afterEach } from "vitest";
+import { beforeAll, afterAll, afterEach, beforeEach } from "vitest";
+import { logger } from "@/lib/logger";
 import { setupTestDb, clearTestDb } from "./helpers/testDb";
 import { server as mockServer } from "./mocks/strava.mock";
 import "dotenv/config";
@@ -31,16 +32,16 @@ if (process.env.TEST_DATABASE_URL === process.env.DATABASE_URL) {
  * Setup test database and start mock servers
  */
 beforeAll(async () => {
-  console.info("🚀 Setting up test environment...");
+  logger.info("🚀 Setting up test environment...");
 
   try {
     // Apply migrations on test database
     await setupTestDb();
-    console.info("✅ Database migrations applied");
+    logger.info("✅ Database migrations applied");
 
     // Clear any existing data from previous test runs
     await clearTestDb();
-    console.info("✅ Database cleared");
+    logger.info("✅ Database cleared");
 
     // Start MSW mock server to intercept Strava calls
     mockServer.listen({
@@ -59,7 +60,7 @@ beforeAll(async () => {
         }
       },
     });
-    console.info("✅ Mock server started");
+    logger.info("✅ Mock server started");
   } catch (error) {
     console.error("❌ Failed to setup test environment:", error);
     throw error;
@@ -67,14 +68,25 @@ beforeAll(async () => {
 });
 
 /**
+ * beforeEach - Executed before EACH test
+ * Guarantee test isolation by cleaning database before each test
+ */
+beforeEach(async () => {
+  try {
+    // Clear all test data before each test to ensure isolation
+    await clearTestDb();
+  } catch (error) {
+    console.error("❌ Failed to clean before test:", error);
+    throw error;
+  }
+});
+
+/**
  * afterEach - Executed after EACH test
- * Guarantee test isolation by cleaning database
+ * Reset mock handlers
  */
 afterEach(async () => {
   try {
-    // Clear all test data
-    await clearTestDb();
-
     // Reset all mock servers handlers
     mockServer.resetHandlers();
   } catch (error) {
@@ -88,18 +100,18 @@ afterEach(async () => {
  * Clean resources and close connections
  */
 afterAll(async () => {
-  console.info("🧹 Tearing down test environment...");
+  logger.info("🧹 Tearing down test environment...");
 
   try {
     // Note: We don't deconnect Prisma here as other test files may still need it.
     // Node.js will automatically close the connection at the end of the process.
-    console.info("✅ Database connection will be closed by Node.js");
+    logger.info("✅ Database connection will be closed by Node.js");
 
     // Reset handlers but don't close the server (other test files may need it)
     mockServer.resetHandlers();
-    console.info("✅ Mock server handlers reset");
+    logger.info("✅ Mock server handlers reset");
   } catch (error) {
-    console.error("❌ Failed to teardown test environment:", error);
+    logger.error("❌ Failed to teardown test environment:", error);
     throw error;
   }
 });

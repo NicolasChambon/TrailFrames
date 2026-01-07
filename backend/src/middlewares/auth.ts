@@ -63,7 +63,7 @@ export async function requireAuth(
         return next();
       } catch (error) {
         await clearAuthCookies(res, refreshToken);
-        next(error);
+        throw error; // In this specific case, we want to propagate the error to the client
       }
     }
 

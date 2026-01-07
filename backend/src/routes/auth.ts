@@ -6,6 +6,7 @@ import {
   handleCallback,
   refresh,
   logout,
+  getCurrentUser,
 } from "@/controllers/authController";
 import { requireAuth } from "@/middlewares/auth";
 
@@ -30,6 +31,9 @@ router.post("/refresh", refresh);
 
 // POST /auth/logout
 router.post("/logout", logout);
+
+// GET /auth/current-user
+router.get("/current-user", requireAuth, getCurrentUser);
 
 // GET /auth/strava/callback?code=AUTH_CODE
 router.get("/strava/callback", requireAuth, handleCallback);

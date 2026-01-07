@@ -1,4 +1,4 @@
-import { seedTestUsers } from "@tests/helpers/mockData";
+import { mockUsers, seedTestUsers } from "@tests/helpers/mockData";
 import { getCsrfContext } from "@tests/helpers/testCsrf";
 import { loginUser } from "@tests/helpers/testRegisterUser";
 import { createTestApp } from "@tests/helpers/testServer";
@@ -6,11 +6,12 @@ import { Application } from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
-describe("POST /auth/logout", () => {
+describe("GET /auth/current-user", () => {
   let app: Application;
   let csrfToken: string;
   let cookies: string[];
   let authenticatedCookies: string[];
+  let userId: string;
 
   beforeEach(async () => {
     // Create app
@@ -25,26 +26,26 @@ describe("POST /auth/logout", () => {
     // Login to get authentication cookies
     const loginContext = await loginUser(app, cookies, csrfToken);
     authenticatedCookies = loginContext.cookies;
+    userId = loginContext.userId;
   });
 
-  it("should logout successfully and clear tokens", async () => {
+  it("should return current user when authenticated", async () => {
     const response = await request(app)
-      .post("/auth/logout")
-      .set("Cookie", authenticatedCookies)
-      .set("X-CSRF-Token", csrfToken);
+      .get("/auth/current-user")
+      .set("Cookie", authenticatedCookies);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
+    expect(response.body.user).toBeDefined();
+    expect(response.body.user.id).toBe(userId);
+    expect(response.body.user.email).toBe(mockUsers.bobby.email);
+    expect(response.body.user.password).toBeUndefined(); // Password should not be returned
+  });
 
-    // Cookies should be cleared
-    const setCookies = response.headers["set-cookie"];
-    const cookieArray = Array.isArray(setCookies) ? setCookies : [setCookies];
+  it("should return 401 when not authenticated (no token)", async () => {
+    const response = await request(app).get("/auth/current-user");
 
-    expect(
-      cookieArray.some((cookie: string) => cookie.includes("access_token=;"))
-    ).toBe(true);
-    expect(
-      cookieArray.some((cookie: string) => cookie.includes("refresh_token=;"))
-    ).toBe(true);
+    expect(response.status).toBe(401);
+    expect(response.body.success).toBe(false);
   });
 });
