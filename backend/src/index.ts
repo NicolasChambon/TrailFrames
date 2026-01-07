@@ -35,12 +35,21 @@ logger.info("CORS configuration", {
   nodeEnv: process.env.NODE_ENV,
 });
 
+// Public health check routes BEFORE CORS (for Render and other services)
+app.get("/", (_req, res) => {
+  res.json({ status: "ok", message: "TrailFrames API" });
+});
+app.get("/health", (_req, res) => {
+  logger.debug("Health check performed");
+  res.json({ status: "ok", message: "Backend is running" });
+});
+
 app.use(
   cors({
     origin: (origin, callback) => {
       // Log each origin check for debugging
       logger.debug("CORS origin check", {
-        receivedOrigin: origin,
+        receivedOrigin: origin || "no-origin",
         allowedOrigins,
       });
 
@@ -51,8 +60,9 @@ app.use(
         return callback(null, true);
       } else {
         logger.error("CORS rejected origin", {
-          receivedOrigin: origin,
+          receivedOrigin: origin || "no-origin",
           allowedOrigins,
+          isProduction,
         });
         callback(new Error("Not allowed by CORS"));
       }
@@ -65,12 +75,6 @@ app.use(cookieParser());
 
 app.use(express.json());
 
-// Public routes BEFORE csrfProtection
-// Health check endpoint
-app.get("/health", (_req, res) => {
-  logger.debug("Health check performed");
-  res.json({ status: "ok", message: "Backend is running" });
-});
 // Endpoint to get CSRF token
 app.get("/csrf-token", csrfProtection, getCsrfToken);
 
