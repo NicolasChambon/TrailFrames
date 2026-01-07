@@ -28,15 +28,32 @@ const allowedOrigins = [
 
 const isProduction = process.env.NODE_ENV === "production";
 
+// Log CORS configuration at startup
+logger.info("CORS configuration", {
+  allowedOrigins,
+  isProduction,
+  nodeEnv: process.env.NODE_ENV,
+});
+
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Log each origin check for debugging
+      logger.debug("CORS origin check", {
+        receivedOrigin: origin,
+        allowedOrigins,
+      });
+
       if (
         (!origin && !isProduction) ||
         (origin && allowedOrigins.includes(origin))
       ) {
         return callback(null, true);
       } else {
+        logger.error("CORS rejected origin", {
+          receivedOrigin: origin,
+          allowedOrigins,
+        });
         callback(new Error("Not allowed by CORS"));
       }
     },
