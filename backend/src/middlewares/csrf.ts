@@ -10,7 +10,11 @@ export const csrfProtection = csurf({
   cookie: {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
+    sameSite: isProduction ? "none" : "lax",
+  },
+  value: (req) => {
+    // Accept both case variations of the header
+    return req.headers["x-csrf-token"] as string;
   },
 });
 
