@@ -3,12 +3,12 @@ name: Backend Integration Tests
 on:
   pull_request:
     branches:
-      - dev
-      - staging
+      - devs
+      - stagings
       - main
     paths:
       - "backend/**"
-      - ".github/workflows/integration-backend-tests.yml"
+      - ".github/workflows/backend-integration-ci.yml"
 
 jobs:
   integration-tests:

@@ -8,7 +8,7 @@ on:
       - main
     paths:
       - "frontend/**"
-      - ".github/workflows/unit-frontend-tests.yml"
+      - ".github/workflows/frontend-unit-ci.yml"
 
 jobs:
   frontend-unit-tests:
