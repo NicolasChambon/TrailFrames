@@ -8,7 +8,7 @@ on:
       - main
     paths:
       - "backend/**"
-      - ".github/workflows/integration-backend-tests.yml"
+      - ".github/workflows/backend-unit-ci.yml"
 
 jobs:
   backend-unit-tests:
