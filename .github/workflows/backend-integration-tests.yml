@@ -3,8 +3,8 @@ name: Backend Integration Tests
 on:
   pull_request:
     branches:
-      - devs
-      - stagings
+      - dev
+      - staging
       - main
     paths:
       - "backend/**"
