@@ -1,7 +1,6 @@
 import { AlertCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import LogoButton from "@/components/LogoButton";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,76 +60,71 @@ export default function Login() {
   };
 
   return (
-    <>
-      <LogoButton />
-      <main className="min-h-screen flex flex-col justify-center items-center gap-7">
-        <Card className="w-full max-w-md">
-          <form onSubmit={handleSubmit}>
-            <CardHeader className="mb-4">
-              <CardTitle>Se connecter à TrailFrames</CardTitle>
-              <CardDescription>
-                Connectez-vous pour accéder à vos photos Strava et revivre vos
-                aventures
-              </CardDescription>
-              <CardAction>
-                <Link to="/register">
-                  <Button type="button" variant="link">
-                    S'inscrire
-                  </Button>
-                </Link>
-              </CardAction>
-            </CardHeader>
-            <CardContent className="mb-4">
-              <div className="flex flex-col gap-6">
-                <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-
-                  <Input
-                    required
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-
-                  <Input
-                    required
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </Field>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-2">
-              <Button
-                className="w-full mb-2"
-                disabled={isLoading || !!data}
-                type="submit"
-              >
-                {isLoading && (
-                  <>
-                    <Spinner className="w-4 h-4 mr-2" />
-                    Connexion...
-                  </>
-                )}
-                {!isLoading && !data && "Se connecter"}
-                {data && !error && "Connecté !"}
+    <Card className="w-full max-w-md m-2">
+      <form onSubmit={handleSubmit}>
+        <CardHeader className="mb-4">
+          <CardTitle>Se connecter à TrailFrames</CardTitle>
+          <CardDescription>
+            Connectez-vous pour accéder à vos photos Strava et revivre vos
+            aventures
+          </CardDescription>
+          <CardAction>
+            <Link to="/register">
+              <Button type="button" variant="link">
+                S'inscrire
               </Button>
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircleIcon />
-                  <AlertTitle>{formatedErr}</AlertTitle>
-                </Alert>
-              )}
-            </CardFooter>
-          </form>
-        </Card>
-      </main>
-    </>
+            </Link>
+          </CardAction>
+        </CardHeader>
+        <CardContent className="mb-4">
+          <div className="flex flex-col gap-6">
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+
+              <Input
+                required
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
+
+              <Input
+                required
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Field>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-2">
+          <Button
+            className="w-full mb-2"
+            disabled={isLoading || !!data}
+            type="submit"
+          >
+            {isLoading && (
+              <>
+                <Spinner className="w-4 h-4 mr-2" />
+                Connexion...
+              </>
+            )}
+            {!isLoading && !data && "Se connecter"}
+            {data && !error && "Connecté !"}
+          </Button>
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>{formatedErr}</AlertTitle>
+            </Alert>
+          )}
+        </CardFooter>
+      </form>
+    </Card>
   );
 }

@@ -26,7 +26,7 @@ export default function Dashboard() {
   return (
     <>
       <LogoutButton />
-      <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+      <div className="flex flex-col justify-center items-center gap-4">
         <h2 className="text-2xl font-bold">Your Strava Activities</h2>
 
         <Button
@@ -43,13 +43,13 @@ export default function Dashboard() {
           )}
         </Button>
 
-        {error && <p className="text-red-500">{error}</p>}
+        {error && <TypographyP className="text-red-500">{error}</TypographyP>}
         {data && (
           <TypographyP className="text-green-500">
             Activities fetched successfully!
           </TypographyP>
         )}
-      </main>
+      </div>
     </>
   );
 }

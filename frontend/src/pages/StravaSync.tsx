@@ -13,7 +13,7 @@ export default function StravaSync() {
   return (
     <>
       <LogoutButton />
-      <main className="min-h-screen flex flex-col justify-center items-center gap-7">
+      <div className="flex flex-col justify-center items-center gap-7">
         <TypographyH1>
           En quelques clics, synchronisez votre compte Strava et retrouvez
           toutes vos photos.
@@ -31,7 +31,7 @@ export default function StravaSync() {
             <Button variant="outline">Je crée un compte Strava</Button>
           </a>
         </div>
-      </main>
+      </div>
     </>
   );
 }

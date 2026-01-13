@@ -6,10 +6,10 @@ import { TypographySubtitle } from "@/components/ui/typographySubtitle";
 
 export default function Entry() {
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-7">
-      <TypographyH1>Bienvenue sur TrailFrames</TypographyH1>
+    <div className="flex flex-col items-center gap-7">
+      <TypographyH1 className="px-4">Bienvenue sur TrailFrames</TypographyH1>
 
-      <TypographySubtitle>
+      <TypographySubtitle className="px-4 text-center">
         Votre passerelle pour vous connecter à Strava et voir vos photos.
       </TypographySubtitle>
 
@@ -27,6 +27,6 @@ export default function Entry() {
           </Button>
         </Link>
       </div>
-    </main>
+    </div>
   );
 }

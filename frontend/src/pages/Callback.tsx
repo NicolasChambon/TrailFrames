@@ -54,7 +54,7 @@ export default function Callback() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+    <div className="flex flex-col justify-center items-center gap-4">
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -70,15 +70,15 @@ export default function Callback() {
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
-    </main>
+    </div>
   );
 }
 
 function ErrorState({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+    <div className="flex flex-col justify-center items-center gap-4">
       <TypographyH2>{children}</TypographyH2>
       <TypographyP>Redirection vers la page d'accueil...</TypographyP>
-    </main>
+    </div>
   );
 }

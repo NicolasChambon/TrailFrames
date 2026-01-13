@@ -1,5 +1,8 @@
+import { useEffect, type ReactNode } from "react";
 import { Navigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { Toast } from "./Toast";
 import {
   Empty,
   EmptyDescription,
@@ -8,7 +11,6 @@ import {
   EmptyTitle,
 } from "./ui/empty";
 import { Spinner } from "./ui/spinner";
-import type { ReactNode } from "react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -17,9 +19,20 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast(
+        <Toast
+          message="Vous devez être connecté pour accéder à cette page."
+          type="error"
+        />
+      );
+    }
+  }, [isLoading, isAuthenticated]);
+
   if (isLoading) {
     return (
-      <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+      <div className="flex flex-col justify-center items-center gap-4">
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -32,7 +45,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
-      </main>
+      </div>
     );
   }
 

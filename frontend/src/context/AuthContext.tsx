@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -28,15 +29,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const checkingRef = useRef<Promise<void> | null>(null); // To prevent multiple simultaneous checks
+
   const checkAuth = async () => {
-    try {
-      const response = await api.get<CurrentUserResponse>("/auth/current-user");
-      setUser(response.data.user);
-    } catch {
-      setUser(null);
-    } finally {
-      setIsLoading(false);
+    if (checkingRef.current) {
+      return checkingRef.current;
     }
+
+    checkingRef.current = (async () => {
+      try {
+        const response = await api.get<CurrentUserResponse>(
+          "/auth/current-user"
+        );
+        setUser(response.data.user);
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+
+    return checkingRef.current;
   };
 
   useEffect(() => {
