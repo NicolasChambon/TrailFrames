@@ -19,7 +19,14 @@ function App() {
       <Routes>
         <Route element={<MinimalLayout />}>
           <Route element={<Entry />} path="/" />
-          <Route element={<Callback />} path="/callback" />
+          <Route
+            element={
+              <ProtectedRoute>
+                <Callback />
+              </ProtectedRoute>
+            }
+            path="/callback"
+          />
         </Route>
 
         <Route element={<DefaultLayout />}>
