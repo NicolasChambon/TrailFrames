@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import {
@@ -9,13 +10,16 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { TypographyH2 } from "@/components/ui/typographyH2";
-import { TypographyP } from "@/components/ui/typographyP";
+import { useCountdown } from "@/hooks/useCountdown";
 import { fetcher } from "@/lib/api";
 import type { AuthCallbackResponse } from "@/types/auth";
 
+const REDIRECT_TIMEOUT = 5;
+const SUCCESS_REDIRECT_TIMEOUT = 2;
+
 export default function Callback() {
   const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
@@ -31,37 +35,65 @@ export default function Callback() {
     }
   );
 
-  useEffect(() => {
-    if (errorParam || !code || error) {
-      setTimeout(() => navigate("/strava-sync"), 3000);
-      return;
-    }
+  const hasError = Boolean(errorParam || !code || error);
 
+  const errorSecondsLeft = useCountdown(
+    REDIRECT_TIMEOUT,
+    () => navigate("/strava-sync"),
+    hasError
+  );
+
+  const successSecondsLeft = useCountdown(
+    SUCCESS_REDIRECT_TIMEOUT,
+    () => navigate("/dashboard"),
+    showSuccess
+  );
+
+  useEffect(() => {
     if (data?.success) {
-      localStorage.setItem("trailFramesUserId", data.trailFramesUserId);
-      navigate("/dashboard");
+      setShowSuccess(true);
     }
-  }, [data, error, code, errorParam, navigate]);
+  }, [data]);
+
+  if (showSuccess) {
+    return (
+      <CallbackSuccessState secondsLeft={successSecondsLeft}>
+        Connexion réussie !
+      </CallbackSuccessState>
+    );
+  }
 
   if (errorParam) {
-    return <ErrorState>Authorisation refusée.</ErrorState>;
+    return (
+      <CallbackErrorState secondsLeft={errorSecondsLeft}>
+        Autorisation refusée.
+      </CallbackErrorState>
+    );
   }
   if (!code) {
-    return <ErrorState>Code d'autorisation manquant.</ErrorState>;
+    return (
+      <CallbackErrorState secondsLeft={errorSecondsLeft}>
+        Code d'autorisation manquant.
+      </CallbackErrorState>
+    );
   }
   if (error) {
-    return <ErrorState>Erreur lors de l'authentification.</ErrorState>;
+    return (
+      <CallbackErrorState secondsLeft={errorSecondsLeft}>
+        Erreur lors de l'authentification.
+      </CallbackErrorState>
+    );
   }
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+    <div className="flex flex-col justify-center items-center gap-4">
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <Spinner />
           </EmptyMedia>
           <EmptyTitle>
-            {isLoading ? "Connection en cours..." : "Redirection..."}
+            {isLoading ? "Connexion en cours..." : "Redirection..."}
           </EmptyTitle>
           <EmptyDescription>
             {isLoading
@@ -70,15 +102,56 @@ export default function Callback() {
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
-    </main>
+    </div>
   );
 }
 
-function ErrorState({ children }: { children: React.ReactNode }) {
+function CallbackErrorState({
+  children,
+  secondsLeft,
+}: {
+  children: React.ReactNode;
+  secondsLeft: number;
+}) {
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
-      <TypographyH2>{children}</TypographyH2>
-      <TypographyP>Redirection vers la page d'accueil...</TypographyP>
-    </main>
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <TriangleAlertIcon />
+        </EmptyMedia>
+        <EmptyTitle>{children}</EmptyTitle>
+        <EmptyDescription>
+          Vous serez automatiquement redirigé dans{" "}
+          <span className="text-foreground">
+            {secondsLeft} {secondsLeft === 1 ? "seconde" : "secondes"}
+          </span>
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}
+
+function CallbackSuccessState({
+  children,
+  secondsLeft,
+}: {
+  children: React.ReactNode;
+  secondsLeft: number;
+}) {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <CheckCircle2Icon />
+        </EmptyMedia>
+        <EmptyTitle>{children}</EmptyTitle>
+        <EmptyDescription>
+          Vous allez être redirigé vers votre tableau de bord dans{" "}
+          <span className="text-foreground">
+            {secondsLeft} {secondsLeft === 1 ? "seconde" : "secondes"}
+          </span>
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }

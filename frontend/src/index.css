@@ -118,3 +118,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+@font-face {
+  font-family: "Jersey 10";
+  src: url("/fonts/Jersey10-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer utilities {
+  .font-jersey {
+    font-family: "Jersey 10";
+  }
+}
