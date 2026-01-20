@@ -408,6 +408,7 @@ VITE_STRAVA_CLIENT_ID=...
 **Activation** : L'utilisateur peut activer ce mode en ajoutant `[MODE PÉDAGOGIQUE]` ou `[TEACH]` dans sa demande.
 
 **Comportement** :
+
 - Expliquer CHAQUE modification en détail
 - Fournir des extraits de code **avant/après** pour toutes les modifications
 - Justifier les choix techniques et architecturaux
@@ -436,24 +437,29 @@ VITE_STRAVA_CLIENT_ID=...
 [Code après avec commentaires pédagogiques]
 
 **Explications** :
+
 - [Point 1] : Explication détaillée
 - [Point 2] : Concept sous-jacent
 - [Point 3] : Bonnes pratiques appliquées
 
 **Concepts clés** :
+
 - [Concept 1] : Définition et utilité
 - [Concept 2] : Pourquoi c'est important
 
 **Pièges évités** :
+
 - ❌ [Anti-pattern évité] : Pourquoi c'est mauvais
 - ✅ [Bonne pratique appliquée] : Pourquoi c'est mieux
 
 **Ressources** :
+
 - [Lien vers doc pertinente]
 
 ---
 
 ### 2. [Modification suivante]
+
 [Même structure...]
 
 ## ✅ Checklist de vérification
@@ -474,6 +480,7 @@ VITE_STRAVA_CLIENT_ID=...
 ```
 
 **Niveau de détail** :
+
 - Adapter le langage pour un développeur junior
 - Éviter le jargon sans l'expliquer
 - Décomposer les concepts complexes en étapes simples
