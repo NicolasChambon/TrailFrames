@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import MinimalLayout from "@/components/layouts/MinimalLayout";
@@ -10,9 +11,14 @@ import Entry from "./pages/Entry";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StravaSync from "./pages/StravaSync";
+import { useAuthStore } from "./stores/authStore";
 
 function App() {
   useScrollToTopOnRouteChange();
+
+  useEffect(() => {
+    useAuthStore.getState().checkAuth();
+  }, []);
 
   return (
     <>
