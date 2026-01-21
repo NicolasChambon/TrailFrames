@@ -1,4 +1,6 @@
 import axios from "axios";
+import { useAuthStore } from "@/stores/authStore";
+import { showErrorToast } from "./toast-helpers";
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}`,
@@ -38,11 +40,12 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => response, // in case of success, just return the response
+
   async (error) => {
     const originalRequest = error.config;
 
@@ -62,6 +65,7 @@ api.interceptors.response.use(
       return api(originalRequest);
     }
 
+    // Log errors in development mode
     if (import.meta.env.DEV) {
       // Don't log 401 errors on auth check - it's expected for unauthenticated users
       const isAuthCheck =
@@ -78,8 +82,20 @@ api.interceptors.response.use(
       }
     }
 
+    // Automatic logout on 401 errors
+    if (error.response?.status === 401) {
+      const isAuthCheck = originalRequest?.url === "/auth/current-user";
+
+      if (!isAuthCheck) {
+        const logout = useAuthStore.getState().logout;
+        logout();
+
+        showErrorToast("Votre session a expiré. Veuillez vous reconnecter.");
+      }
+    }
+
     return Promise.reject(error);
-  }
+  },
 );
 
 export const fetcher = (url: string) => api.get(url).then((res) => res.data);

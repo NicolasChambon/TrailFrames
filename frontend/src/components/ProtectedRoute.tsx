@@ -1,8 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { Navigate } from "react-router-dom";
-import { toast } from "sonner";
+import { showErrorToast } from "@/lib/toast-helpers";
 import { useAuthStore } from "@/stores/authStore";
-import { Toast } from "./Toast";
 import {
   Empty,
   EmptyDescription,
@@ -24,12 +23,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !hasShownToast.current) {
-      toast(
-        <Toast
-          message="Vous devez être connecté pour accéder à cette page."
-          type="error"
-        />,
-      );
+      showErrorToast("Vous devez être connecté pour accéder à cette page.");
       hasShownToast.current = true;
     }
   }, [isLoading, isAuthenticated]);

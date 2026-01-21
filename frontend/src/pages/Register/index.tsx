@@ -16,7 +16,6 @@ import {
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { formatError } from "@/lib/formatError";
 import { useMutation } from "@/lib/useMutation";
@@ -25,10 +24,11 @@ import {
   isPasswordStrong,
 } from "@/pages/Register/passwordValidation";
 import { ValidationMessage } from "@/pages/Register/ValidationMessage";
+import { useAuthStore } from "@/stores/authStore";
 import type { RegisterResponse } from "@/types/auth";
 
 export default function Register() {
-  const { login: setAuthUser } = useAuth();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const navigate = useNavigate();
 
@@ -48,20 +48,20 @@ export default function Register() {
     error,
     data,
   } = useMutation<RegisterResponse>(() =>
-    api.post("/auth/register", { email, password })
+    api.post("/auth/register", { email, password }),
   );
 
   const formatedErr = formatError(error);
 
   useEffect(() => {
     if (data && !error) {
-      setAuthUser(data.user);
+      setUser(data.user);
       const timer = setTimeout(() => {
         navigate("/strava-sync");
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [data, error, navigate, setAuthUser]);
+  }, [data, error, navigate, setUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
