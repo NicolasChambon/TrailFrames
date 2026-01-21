@@ -15,34 +15,34 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { formatError } from "@/lib/formatError";
 import { useMutation } from "@/lib/useMutation";
+import { useAuthStore } from "@/stores/authStore";
 import type { LoginResponse } from "@/types/auth";
 
 export default function Login() {
-  const { login: setAuthUser } = useAuth();
-
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const setUser = useAuthStore((state) => state.setUser);
+
+  const navigate = useNavigate();
+
   const {
-    mutate: loginUser,
+    mutate: login,
     isLoading,
     error,
     data,
   } = useMutation<LoginResponse>(() =>
-    api.post("/auth/login", { email, password })
+    api.post("/auth/login", { email, password }),
   );
 
   const formatedErr = formatError(error);
 
   useEffect(() => {
     if (data && !error) {
-      setAuthUser(data.user);
+      setUser(data.user);
       const timer = setTimeout(() => {
         if (data.user.stravaAthleteId) {
           navigate("/dashboard");
@@ -52,11 +52,11 @@ export default function Login() {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [data, error, navigate, setAuthUser]);
+  }, [data, error, navigate, setUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await loginUser();
+    await login();
   };
 
   return (
