@@ -1,7 +1,7 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 import { Toast } from "./Toast";
 import {
   Empty,
@@ -17,16 +17,20 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+  const hasShownToast = useRef(false); // Because hasShownToast should not trigger re-render
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading && !isAuthenticated && !hasShownToast.current) {
       toast(
         <Toast
           message="Vous devez être connecté pour accéder à cette page."
           type="error"
-        />
+        />,
       );
+      hasShownToast.current = true;
     }
   }, [isLoading, isAuthenticated]);
 
