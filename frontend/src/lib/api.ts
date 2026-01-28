@@ -22,6 +22,11 @@ export async function fetchCsrfToken(): Promise<void> {
   }
 }
 
+// For testing purposes only
+export function resetCsrfToken(): void {
+  csrfToken = null;
+}
+
 api.interceptors.request.use(
   async (config) => {
     if (

@@ -41,11 +41,10 @@ export const useAuthStore = create<AuthState>()(
           } finally {
             set({ user: null, isLoading: false });
             localStorage.removeItem("auth-storage");
-            window.location.href = "/entry"; // TODO: Why note use navigate("/entry") ?
+            window.location.href = "/";
           }
         },
 
-        // TODO: when to call this method?
         checkAuth: async () => {
           if (isCheckingAuth) return;
 
@@ -54,9 +53,8 @@ export const useAuthStore = create<AuthState>()(
 
           try {
             const response = await api.get("/auth/current-user");
-            set({ user: response.data, isLoading: false });
-            // TODO: resolve error type issue
-          } catch (error) {
+            set({ user: response.data.user, isLoading: false });
+          } catch {
             set({ user: null, isLoading: false });
           } finally {
             isCheckingAuth = false;
