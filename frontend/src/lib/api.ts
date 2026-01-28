@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/authStore";
-import { showErrorToast } from "./toast-helpers";
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}`,
@@ -93,9 +92,7 @@ api.interceptors.response.use(
 
       if (!isAuthCheck) {
         const logout = useAuthStore.getState().logout;
-        logout();
-
-        showErrorToast("Votre session a expiré. Veuillez vous reconnecter.");
+        logout({ showToast: "session-expired" });
       }
     }
 

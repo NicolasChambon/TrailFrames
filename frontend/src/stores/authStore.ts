@@ -8,7 +8,7 @@ interface AuthState {
   isLoading: boolean;
 
   setUser: (user: User | null) => void;
-  logout: () => Promise<void>;
+  logout: (options?: { showToast?: string }) => Promise<void>;
   checkAuth: () => Promise<void>;
 
   isAuthenticated: () => boolean;
@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>()(
           set({ user, isLoading: false });
         },
 
-        logout: async () => {
+        logout: async (options) => {
           try {
             await api.post("/auth/logout");
           } catch (error) {
@@ -41,7 +41,12 @@ export const useAuthStore = create<AuthState>()(
           } finally {
             set({ user: null, isLoading: false });
             localStorage.removeItem("auth-storage");
-            window.location.href = "/";
+            
+            const redirectUrl = options?.showToast
+              ? `/login?toast=${options.showToast}`
+              : "/";
+            
+            window.location.href = redirectUrl;
           }
         },
 
