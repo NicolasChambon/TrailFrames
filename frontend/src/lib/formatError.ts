@@ -9,5 +9,9 @@ export function formatError(error: string | null): string | null {
     return "Adresse email invalide.";
   }
 
+  if (error.includes("429")) {
+    return "Trop de tentatives, veuillez réessayer plus tard.";
+  }
+
   return error;
 }
