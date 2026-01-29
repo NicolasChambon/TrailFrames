@@ -10,13 +10,13 @@ export default function StravaSync() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-7">
-      <TypographyH1>
+    <div className="flex flex-col items-center gap-7">
+      <TypographyH1 className="px-4">
         En quelques clics, synchronisez votre compte Strava et retrouvez toutes
         vos photos.
       </TypographyH1>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col items-center gap-4 sm:flex-row">
         <Button onClick={handleConnectStrava}>
           Je synchronise mon compte Strava
         </Button>

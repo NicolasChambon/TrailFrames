@@ -1,8 +1,6 @@
-import { useEffect, type ReactNode } from "react";
-import { Navigate } from "react-router-dom";
-import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
-import { Toast } from "./Toast";
+import { type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/authStore";
 import {
   Empty,
   EmptyDescription,
@@ -17,18 +15,14 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast(
-        <Toast
-          message="Vous devez être connecté pour accéder à cette page."
-          type="error"
-        />
-      );
-    }
-  }, [isLoading, isAuthenticated]);
+  if (!isLoading && !isAuthenticated) {
+    navigate("/login?toast=not-authenticated", { replace: true });
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -47,10 +41,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         </Empty>
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate replace to="/login" />;
   }
 
   return <>{children}</>;

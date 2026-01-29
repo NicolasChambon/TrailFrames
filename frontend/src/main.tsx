@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.tsx";
-import { AuthProvider } from "./context/AuthContext.tsx";
 import { fetchCsrfToken } from "./lib/api.ts";
 
 fetchCsrfToken()
@@ -11,11 +10,9 @@ fetchCsrfToken()
     createRoot(document.getElementById("root")!).render(
       <StrictMode>
         <BrowserRouter>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
+          <App />
         </BrowserRouter>
-      </StrictMode>
+      </StrictMode>,
     );
   })
   .catch((error) => {
