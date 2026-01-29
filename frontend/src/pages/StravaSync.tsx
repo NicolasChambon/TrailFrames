@@ -1,9 +1,21 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { TypographyH1 } from "@/components/ui/typographyH1";
 import { generateStravaAuthUrl } from "@/lib/stravaAuth";
+import { useAuthStore } from "@/stores/authStore";
 
-// TODO: plan to implement a header with a logout button
 export default function StravaSync() {
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+
+  // Redirect if user is already connected to Strava
+  useEffect(() => {
+    if (user && user.stravaAthleteId) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
+
   const handleConnectStrava = () => {
     const authUrl = generateStravaAuthUrl();
     window.location.href = authUrl;
