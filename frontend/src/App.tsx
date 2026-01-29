@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { Routes, Route, useSearchParams } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import MinimalLayout from "@/components/layouts/MinimalLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Toaster } from "./components/ui/sonner";
 import { useScrollToTopOnRouteChange } from "./hooks/useScrollToTopOnRouteChange";
-import { showErrorToast } from "./lib/toast-helpers";
+import { useToastFromUrl } from "./hooks/useToastFromUrl";
 import Callback from "./pages/Callback";
 import Dashboard from "./pages/Dashboard";
 import Entry from "./pages/Entry";
@@ -16,23 +16,12 @@ import { useAuthStore } from "./stores/authStore";
 
 function App() {
   useScrollToTopOnRouteChange();
-  const [searchParams, setSearchParams] = useSearchParams();
+  useToastFromUrl();
 
   // Check authentication status on app load
   useEffect(() => {
     useAuthStore.getState().checkAuth();
   }, []);
-
-  // Centralized toast handling for query parameters
-  useEffect(() => {
-    const toastParam = searchParams.get("toast");
-
-    if (toastParam === "session-expired") {
-      showErrorToast("Votre session a expiré. Veuillez vous reconnecter.");
-      searchParams.delete("toast");
-      setSearchParams(searchParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
 
   return (
     <>

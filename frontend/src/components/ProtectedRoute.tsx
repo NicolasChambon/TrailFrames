@@ -20,7 +20,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const navigate = useNavigate();
 
   if (!isLoading && !isAuthenticated) {
-    navigate("/login", { replace: true });
+    navigate("/login?toast=not-authenticated", { replace: true });
     return null;
   }
 
