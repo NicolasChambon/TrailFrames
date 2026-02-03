@@ -89,8 +89,9 @@ api.interceptors.response.use(
     // Automatic logout on 401 errors
     if (error.response?.status === 401) {
       const isAuthCheck = originalRequest?.url === "/auth/current-user";
+      const isLogin = originalRequest?.url === "/auth/login";
 
-      if (!isAuthCheck) {
+      if (!isAuthCheck && !isLogin) {
         const logout = useAuthStore.getState().logout;
         logout({ showToast: "session-expired" });
       }
