@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   stravaAthleteId: string | null;
+  lastSync: string | null;
   username: string | null;
   lastName: string | null;
   firstName: string | null;

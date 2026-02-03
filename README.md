@@ -52,7 +52,6 @@ TrailFrames/
 │   └── public/             # Static assets (fonts, SVG)
 │
 ├── docs/              # Documentation
-└── TODO/              # Project tasks and planning
 ```
 
 ## 🚀 Quick Start
@@ -338,7 +337,6 @@ POST /api/activities/sync         → Sync with Strava
 
 - **User Flow**: See [docs/user-introduction-sequence-diagram.mermaid](docs/user-introduction-sequence-diagram.mermaid)
 - **Copilot Instructions**: [.github/copilot-instructions.md](.github/copilot-instructions.md)
-- **TODO**: [TODO/TODO.md](TODO/TODO.md)
 
 ## 🐛 Debugging
 

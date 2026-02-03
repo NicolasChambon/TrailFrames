@@ -11,7 +11,6 @@ interface SyncActivitiesResponse {
   success: boolean;
 }
 
-// TODO: plan to implement a header with a logout button
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
@@ -31,7 +30,6 @@ export default function Dashboard() {
   } = useMutation<SyncActivitiesResponse>(() => api.put(`/activities`));
 
   const handleFetchActivities = async () => {
-    // if (!trailFramesUserId) return;
     await fetchActivities();
   };
 
@@ -39,10 +37,7 @@ export default function Dashboard() {
     <div className="flex flex-col justify-center items-center gap-4">
       <h2 className="text-2xl font-bold">Your Strava Activities</h2>
 
-      <Button
-        // disabled={isLoading || !trailFramesUserId}
-        onClick={handleFetchActivities}
-      >
+      <Button disabled={isLoading} onClick={handleFetchActivities}>
         {isLoading ? (
           <>
             <Spinner className="w-4 h-4 mr-2" />
