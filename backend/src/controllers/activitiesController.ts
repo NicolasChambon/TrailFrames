@@ -8,27 +8,6 @@ import {
 
 const activitiesService = new ActivitiesService();
 
-// TODO: Remove this endpoint later
-// PUT /activities
-// export async function syncActivities(
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) {
-//   try {
-//     if (!req.user) {
-//       throw new UnauthorizedError("Authentication required");
-//     }
-
-//     await activitiesService.createAllActivities(req.user);
-
-//     res.status(200).json({ success: true });
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-
-//
 export const syncActivitiesStream = async (
   req: Request,
   res: Response,
