@@ -36,11 +36,28 @@ export class ActivitiesService {
         select: {
           id: true,
           stravaAccessToken: true,
+          lastSyncedAt: true,
         },
       });
 
       if (!user?.stravaAccessToken) {
         throw new UnauthorizedError("Strava token not found");
+      }
+
+      // Verify this is the first sync (lastSyncedAt must be null)
+      if (user.lastSyncedAt !== null) {
+        throw new Error("Activities already synchronized for this user");
+      }
+
+      // Double-check: ensure no activities exist for this user
+      const existingActivitiesCount = await prisma.activity.count({
+        where: { trailFramesUserId: user.id },
+      });
+
+      if (existingActivitiesCount > 0) {
+        throw new Error(
+          "Activities already exist for this user. Cannot perform initial sync.",
+        );
       }
 
       // 2. Fetch all activities from Strava with pagination
@@ -71,95 +88,87 @@ export class ActivitiesService {
         page++;
       }
 
-      // 3. Existing activities filtering
-      const existingIds = await prisma.activity.findMany({
-        where: {
-          stravaActivityId: {
-            in: allActivities.map((activities) => activities.id),
-          },
-        },
-        select: { stravaActivityId: true },
-      });
-
-      const existingIdsSet = new Set(
-        existingIds.map((activity) => activity.stravaActivityId),
-      );
-      const newActivities = allActivities.filter(
-        (activity) => !existingIdsSet.has(BigInt(activity.id)),
-      );
-
-      // Start saving activities event
+      // 3. Start saving activities event
       onProgress({
         type: "saving_activities",
         data: {
           total: allActivities.length,
-          newActivities: newActivities.length,
+          newActivities: allActivities.length,
         },
       });
 
-      // 4. Save new activities to DB
-      if (newActivities.length > 0) {
-        await prisma.activity.createMany({
-          data: newActivities.map((activity) => ({
-            stravaActivityId: activity.id,
-            trailFramesUserId: user.id,
-            stravaAthleteId: activity.athlete.id,
-            stravaUploadId: activity.upload_id ?? null,
-            name: activity.name,
-            distance: activity.distance,
-            movingTime: activity.moving_time,
-            elapsedTime: activity.elapsed_time,
-            totalElevationGain: activity.total_elevation_gain,
-            elevHigh: activity.elev_high ?? null,
-            elevLow: activity.elev_low ?? null,
-            sportType: activity.sport_type,
-            startDate: new Date(activity.start_date),
-            startDateLocal: new Date(activity.start_date_local),
-            timezone: activity.timezone,
-            startLatlng: activity.start_latlng ?? [],
-            endLatlng: activity.end_latlng ?? [],
-            achievementCount: activity.achievement_count,
-            kudosCount: activity.kudos_count,
-            commentCount: activity.comment_count,
-            athleteCount: activity.athlete_count,
-            totalPhotoCount: activity.total_photo_count,
-            summaryPolyline: activity.map.summary_polyline ?? null,
-            trainer: activity.trainer,
-            commute: activity.commute,
-            manual: activity.manual,
-            private: activity.private,
-            flagged: activity.flagged,
-            workoutType: activity.workout_type ?? null,
-            averageSpeed: activity.average_speed,
-            maxSpeed: activity.max_speed,
-            hasKudoed: activity.has_kudoed,
-            gearId: activity.gear_id ?? null,
-            kilojoules: activity.kilojoules ?? null,
-            averageWatts: activity.average_watts ?? null,
-            deviceWatts: activity.device_watts ?? null,
-            maxWatts: activity.max_watts ?? null,
-            weightedAverageWatts: activity.weighted_average_watts ?? null,
-          })),
-          skipDuplicates: true,
+      // 4. Save all activities to DB and update user in a transaction
+      const syncedAt = new Date();
+
+      if (allActivities.length > 0) {
+        await prisma.$transaction(async (tx) => {
+          await tx.activity.createMany({
+            data: allActivities.map((activity) => ({
+              stravaActivityId: activity.id,
+              trailFramesUserId: user.id,
+              stravaAthleteId: activity.athlete.id,
+              stravaUploadId: activity.upload_id ?? null,
+              name: activity.name,
+              distance: activity.distance,
+              movingTime: activity.moving_time,
+              elapsedTime: activity.elapsed_time,
+              totalElevationGain: activity.total_elevation_gain,
+              elevHigh: activity.elev_high ?? null,
+              elevLow: activity.elev_low ?? null,
+              sportType: activity.sport_type,
+              startDate: new Date(activity.start_date),
+              startDateLocal: new Date(activity.start_date_local),
+              timezone: activity.timezone,
+              startLatlng: activity.start_latlng ?? [],
+              endLatlng: activity.end_latlng ?? [],
+              achievementCount: activity.achievement_count,
+              kudosCount: activity.kudos_count,
+              commentCount: activity.comment_count,
+              athleteCount: activity.athlete_count,
+              totalPhotoCount: activity.total_photo_count,
+              summaryPolyline: activity.map.summary_polyline ?? null,
+              trainer: activity.trainer,
+              commute: activity.commute,
+              manual: activity.manual,
+              private: activity.private,
+              flagged: activity.flagged,
+              workoutType: activity.workout_type ?? null,
+              averageSpeed: activity.average_speed,
+              maxSpeed: activity.max_speed,
+              hasKudoed: activity.has_kudoed,
+              gearId: activity.gear_id ?? null,
+              kilojoules: activity.kilojoules ?? null,
+              averageWatts: activity.average_watts ?? null,
+              deviceWatts: activity.device_watts ?? null,
+              maxWatts: activity.max_watts ?? null,
+              weightedAverageWatts: activity.weighted_average_watts ?? null,
+            })),
+            skipDuplicates: true,
+          });
+
+          // 5. Update user's lastSyncedAt
+          await tx.user.update({
+            where: { id: userId },
+            data: { lastSyncedAt: syncedAt },
+          });
+        });
+      } else {
+        // Even if no new activities, mark as synced
+        await prisma.user.update({
+          where: { id: userId },
+          data: { lastSyncedAt: syncedAt },
         });
       }
 
-      // 5. Update user's lastSyncedAt
-      const syncedAt = new Date();
-      await prisma.user.update({
-        where: { id: userId },
-        data: { lastSyncedAt: syncedAt },
-      });
-
       logger.info(
-        `Synced ${newActivities.length} new activities for user ${user.id}`,
+        `Synced ${allActivities.length} activities for user ${user.id}`,
       );
 
       // Finished synchronization event
       onProgress({
         type: "completed",
         data: {
-          totalSynced: newActivities.length,
+          totalSynced: allActivities.length,
           syncedAt: syncedAt.toISOString(),
         },
       });
