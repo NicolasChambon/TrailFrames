@@ -22,7 +22,6 @@ const REFRESH_TOKEN_EXPIRES_IN = "7d";
 const ACCESS_COOKIE_NAME = "access_token";
 const REFRESH_COOKIE_NAME = "refresh_token";
 
-// TODO: define exactly what goes into the payload
 export interface JwtPayload {
   userId: string;
   email: string;

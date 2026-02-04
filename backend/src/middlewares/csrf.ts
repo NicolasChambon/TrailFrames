@@ -8,12 +8,12 @@ const isProduction = process.env.NODE_ENV === "production";
 // It stocks the secret in an HttpOnly cookie and expects the token to be sent in the request header 'x-csrf-token'
 export const csrfProtection = csurf({
   cookie: {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    httpOnly: true, // Prevent access via JavaScript (mitigates XSS)
+    secure: isProduction, // Only send over HTTPS in production
+    sameSite: isProduction ? "none" : "lax", // Because frontend and backend are on different domains in production
   },
   value: (req) => {
-    // Accept both case variations of the header
+    // Read the token from X-CSRF-Token header
     return req.headers["x-csrf-token"] as string;
   },
 });
@@ -28,7 +28,7 @@ export function csrfErrorHandler(
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   // Only handle CSRF-specific errors here
   if ("code" in error && error.code === "EBADCSRFTOKEN") {

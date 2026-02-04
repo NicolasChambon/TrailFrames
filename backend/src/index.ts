@@ -68,7 +68,7 @@ app.use(
       }
     },
     credentials: true,
-  })
+  }),
 );
 
 app.use(cookieParser());
@@ -78,6 +78,7 @@ app.use(express.json());
 // Endpoint to get CSRF token
 app.get("/csrf-token", csrfProtection, getCsrfToken);
 
+// Apply CSRF protection to all subsequent routes
 app.use(csrfProtection);
 
 app.use(routes);
@@ -85,14 +86,17 @@ app.use(routes);
 app.use(csrfErrorHandler);
 app.use(errorHandler);
 
-setInterval(async () => {
-  try {
-    await tokenService.cleanExpiredTokens();
-    logger.info("Expired refresh tokens cleaned up");
-  } catch (error) {
-    logger.error("Error cleaning expired refresh tokens", { error });
-  }
-}, 60 * 60 * 1000); // Every 60 minutes
+setInterval(
+  async () => {
+    try {
+      await tokenService.cleanExpiredTokens();
+      logger.info("Expired refresh tokens cleaned up");
+    } catch (error) {
+      logger.error("Error cleaning expired refresh tokens", { error });
+    }
+  },
+  60 * 60 * 1000,
+); // Every 60 minutes
 
 app.listen(port, () => {
   logger.info(`🚀 Server running on http://localhost:${port}`, {

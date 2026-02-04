@@ -15,7 +15,7 @@ TrailFrames est une application web pour visualiser et gérer les activités Str
 /
 ├── backend/         → API REST (Express + TypeScript + Prisma)
 ├── frontend/        → Application React (Vite + TypeScript + TailwindCSS)
-├── docs/           → Documentation
+├── docs/            → Documentation
 ```
 
 ### Backend (`backend/`)
