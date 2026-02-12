@@ -7,7 +7,7 @@ export const config = {
   isDevelopment: process.env.NODE_ENV === "development",
 
   // Server port
-  port: parseInt(process.env.PORT || "4000", 10),
+  port: parseInt(process.env.PORT || "3000", 10),
 
   // Frontend URLs
   frontend: {

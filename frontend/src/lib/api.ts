@@ -21,6 +21,12 @@ export async function fetchCsrfToken(): Promise<void> {
   }
 }
 
+// Getter to access the CSRF token from other parts of the application if
+// needed (e.g., for SSE connections that cannot use headers)
+export function getCsrfToken(): string | null {
+  return csrfToken;
+}
+
 // For testing purposes only
 export function resetCsrfToken(): void {
   csrfToken = null;

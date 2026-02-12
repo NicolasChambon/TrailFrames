@@ -18,6 +18,24 @@ export const csrfProtection = csurf({
   },
 });
 
+// TODO: we can maybe factorise the two middlewares and only change the value function
+// CSRF middleware for SSE routes (accepts query param)
+// EventSource cannot send custom headers, so we accept the token as a query parameter
+export const csrfProtectionSSE = csurf({
+  cookie: {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  },
+  value: (req) => {
+    // Try query parameter first for SSE routes,
+    // then fallback to header for regular routes
+    return (
+      (req.query.csrfToken as string) || (req.headers["x-csrf-token"] as string)
+    );
+  },
+});
+
 // Endpoint to get the CSRF token
 export function getCsrfToken(req: Request, res: Response) {
   res.json({ success: true, csrfToken: req.csrfToken() });
