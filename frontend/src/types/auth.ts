@@ -38,7 +38,7 @@ export interface CurrentUserResponse {
 
 export interface AuthCallbackResponse {
   success: boolean;
-  trailFramesUserId: string;
+  user: User;
   message: string;
 }
 

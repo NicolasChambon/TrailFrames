@@ -12,6 +12,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { useCountdown } from "@/hooks/useCountdown";
 import { fetcher } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 import type { AuthCallbackResponse } from "@/types/auth";
 
 const REDIRECT_TIMEOUT = 5;
@@ -20,6 +21,7 @@ const SUCCESS_REDIRECT_TIMEOUT = 2;
 export default function Callback() {
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
@@ -32,7 +34,7 @@ export default function Callback() {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       shouldRetryOnError: false,
-    }
+    },
   );
 
   const hasError = Boolean(errorParam || !code || error);
@@ -40,20 +42,21 @@ export default function Callback() {
   const errorSecondsLeft = useCountdown(
     REDIRECT_TIMEOUT,
     () => navigate("/strava-sync"),
-    hasError
+    hasError,
   );
 
   const successSecondsLeft = useCountdown(
     SUCCESS_REDIRECT_TIMEOUT,
     () => navigate("/dashboard"),
-    showSuccess
+    showSuccess,
   );
 
   useEffect(() => {
-    if (data?.success) {
+    if (data?.success && data.user) {
+      setUser(data.user);
       setShowSuccess(true);
     }
-  }, [data]);
+  }, [data, setUser]);
 
   if (showSuccess) {
     return (
