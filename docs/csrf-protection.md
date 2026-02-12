@@ -573,7 +573,7 @@ With this protection:
 
 ```bash
 # Retrieve token and save cookies
-curl -X GET http://localhost:3000/csrf-token \
+curl -X GET http://localhost:4000/csrf-token \
   -c cookies.txt \
   -v
 
@@ -586,7 +586,7 @@ curl -X GET http://localhost:3000/csrf-token \
 
 ```bash
 # Login attempt WITHOUT CSRF token
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:4000/api/auth/login \
   -H "Content-Type: application/json" \
   -b cookies.txt \
   -d '{"email":"test@example.com","password":"password"}' \
@@ -601,7 +601,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 
 ```bash
 # Login WITH CSRF token
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:4000/api/auth/login \
   -H "Content-Type: application/json" \
   -H "X-CSRF-Token: abc123" \
   -b cookies.txt \
@@ -786,7 +786,7 @@ cookie: {
 ```typescript
 // ❌ COMMON ERROR
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:4000",
   // withCredentials missing!
 });
 
@@ -800,7 +800,7 @@ const api = axios.create({
 ```typescript
 // ✅ CORRECT
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:4000",
   withCredentials: true, // ← ESSENTIAL!
 });
 ```

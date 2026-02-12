@@ -90,7 +90,7 @@ Edit `backend/.env`:
 
 ```env
 NODE_ENV=development
-PORT=3000
+PORT=4000
 DATABASE_URL=postgresql://user:password@localhost:5432/trailframes
 JWT_SECRET=your-jwt-secret-here
 JWT_REFRESH_SECRET=your-refresh-secret-here
@@ -109,7 +109,7 @@ cp .env.template .env
 Edit `frontend/.env`:
 
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:4000
 VITE_STRAVA_CLIENT_ID=your-strava-client-id
 ```
 
@@ -131,7 +131,7 @@ npm run dev
 
 This starts:
 
-- 🔵 **Backend** on http://localhost:3000 (blue logs)
+- 🔵 **Backend** on http://localhost:4000 (blue logs)
 - 🟣 **Frontend** on http://localhost:5173 (magenta logs)
 
 **Or run them separately:**
