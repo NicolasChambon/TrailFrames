@@ -58,6 +58,7 @@ export class AuthService {
     return user;
   }
 
+  // Fetch Strava tokens and athlete info using the provided code, then save it to the user record
   async authenticateWithStrava(code: string, trailFramesUserId: string) {
     const tokenData = await stravaService.exchangeCodeForToken(code);
 

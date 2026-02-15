@@ -1,73 +1,77 @@
-import { Calendar, RefreshCwIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+// import { Calendar, RefreshCwIcon } from "lucide-react";
+// import { useEffect, useState } from "react";
+// import { useNavigate } from "react-router";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
 import { TypographyH1 } from "@/components/ui/typographyH1";
-import { TypographyP } from "@/components/ui/typographyP";
-import { useActivitySync } from "@/hooks/useActivitySync";
-import { useAuthStore } from "@/stores/authStore";
-import { SyncErrorDialog } from "./SyncErrorDialog";
-import { SyncProgress } from "./SyncProgress";
+// import { TypographyP } from "@/components/ui/typographyP";
+// import { useActivitySync } from "@/hooks/useActivitySync";
+// import { useAuthStore } from "@/stores/authStore";
+// import { SyncErrorDialog } from "./SyncErrorDialog";
+// import { SyncProgress } from "./SyncProgress";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
+  // const navigate = useNavigate();
+  // const user = useAuthStore((state) => state.user);
 
-  const {
-    isConnecting,
-    isSyncing,
-    progress,
-    error,
-    startSync,
-    cancelSync,
-    clearError,
-  } = useActivitySync();
+  // const {
+  //   isConnecting,
+  //   isSyncing,
+  //   progress,
+  //   error,
+  //   startSync,
+  //   cancelSync,
+  //   clearError,
+  // } = useActivitySync();
 
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  // const [showErrorDialog, setShowErrorDialog] = useState(false);
 
-  // Redirect if user isn't already connected to Strava
-  useEffect(() => {
-    if (user && !user.stravaAthleteId) {
-      navigate("/strava-sync", { replace: true });
-    }
-  }, [user, navigate]);
+  // // Redirect if user isn't already connected to Strava
+  // useEffect(() => {
+  //   if (user && !user.stravaAthleteId) {
+  //     navigate("/strava-sync", { replace: true });
+  //   }
+  // }, [user, navigate]);
 
-  // Auto-start sync for new users (who have a user record but haven't synced yet)
-  useEffect(() => {
-    if (user && user.stravaAthleteId && !user.lastSyncedAt) {
-      startSync();
-    }
-  }, [user, startSync]);
+  // // Auto-start sync for new users (who have a user record but haven't synced yet)
+  // useEffect(() => {
+  //   if (user && user.stravaAthleteId && !user.lastSyncedAt) {
+  //     startSync();
+  //   }
+  // }, [user, startSync]);
 
-  useEffect(() => {
-    if (error) {
-      setShowErrorDialog(true);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     setShowErrorDialog(true);
+  //   }
+  // }, [error]);
 
-  const handleCloseError = () => {
-    setShowErrorDialog(false);
-    clearError();
-  };
+  // const handleCloseError = () => {
+  //   setShowErrorDialog(false);
+  //   clearError();
+  // };
 
-  const handleRetry = () => {
-    setShowErrorDialog(false);
-    clearError();
-    startSync();
-  };
+  // const handleRetry = () => {
+  //   setShowErrorDialog(false);
+  //   clearError();
+  //   startSync();
+  // };
 
-  const isSyncInProgress = isConnecting || isSyncing;
+  // const isSyncInProgress = isConnecting || isSyncing;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-8 text-center">
+      <TypographyH1 className="text-3xl font-bold mb-2">
+        Tableau de bord
+      </TypographyH1>
+
+      {/* <div className="mb-8 text-center">
         <TypographyH1 className="text-3xl font-bold mb-2">
           Vos Activités Strava
         </TypographyH1>
@@ -84,9 +88,9 @@ export default function Dashboard() {
             onCancel={isSyncing ? cancelSync : undefined}
             onRetry={progress?.status === "error" ? startSync : undefined}
           />
-        )}
+        )} */}
 
-        {!user?.lastSyncedAt && !isSyncInProgress && !progress && (
+      {/* {!user?.lastSyncedAt && !isSyncInProgress && !progress && (
           <Card>
             <CardHeader>
               <CardTitle>Bienvenue sur TrailFrames !</CardTitle>
@@ -106,10 +110,10 @@ export default function Dashboard() {
               </Button>
             </CardContent>
           </Card>
-        )}
+        )} */}
 
-        {/* État: Déjà synchronisé (afficher date + bouton re-sync) */}
-        {user?.lastSyncedAt &&
+      {/* État: Déjà synchronisé (afficher date + bouton re-sync) */}
+      {/* {user?.lastSyncedAt &&
           !isSyncInProgress &&
           progress?.status !== "completed" && (
             <Card>
@@ -136,19 +140,19 @@ export default function Dashboard() {
                     disponible. Les synchronisations incrémentales arriveront
                     bientôt !
                   </TypographyP>
-                </div>
+                </div> */}
 
-                {/* Bouton pour re-sync manuelle (si besoin de debug ou futur incremental sync) */}
-                {/* <Button onClick={startSync} variant="outline">
+      {/* Bouton pour re-sync manuelle (si besoin de debug ou futur incremental sync) */}
+      {/* <Button onClick={startSync} variant="outline">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Re-synchroniser
-              </Button> */}
+              </Button>
               </CardContent>
             </Card>
-          )}
+          )} */}
 
-        {/* TODO: Afficher la liste des activités */}
-        {user?.lastSyncedAt && progress?.status === "completed" && (
+      {/* TODO: Afficher la liste des activités */}
+      {/* {user?.lastSyncedAt && progress?.status === "completed" && (
           <Card>
             <CardHeader>
               <CardTitle>Vos activités</CardTitle>
@@ -163,15 +167,15 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
-      </div>
+      </div> */}
 
       {/* Dialog d'erreur */}
-      <SyncErrorDialog
+      {/* <SyncErrorDialog
         error={error || ""}
         open={showErrorDialog}
         onClose={handleCloseError}
         onRetry={handleRetry}
-      />
+      /> */}
     </div>
   );
 }
