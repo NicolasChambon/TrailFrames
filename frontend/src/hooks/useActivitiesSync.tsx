@@ -6,6 +6,8 @@ interface SyncProgress {
   current?: number;
   total?: number;
   type: "info" | "success" | "error" | "progress";
+  /** Clé optionnelle : si fournie, un item existant avec la même clé est mis à jour plutôt qu'ajouté */
+  key?: string;
 }
 
 interface UseActivitiesSyncReturn {
@@ -19,9 +21,29 @@ export function useActivitiesSync(): UseActivitiesSyncReturn {
   const [isSyncing, setIsSyncing] = useState(false);
   const [progress, setProgress] = useState<SyncProgress[]>([]);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const fetchedCountRef = useRef(0);
 
   const addProgress = useCallback((newProgress: SyncProgress) => {
-    setProgress((prev) => [...prev, newProgress]);
+    // If the new progress has a key, try to find an existing item with the same
+    // key and update it instead of adding a new one
+    if (newProgress.key) {
+      setProgress((prev) => {
+        const index = prev.findIndex(
+          (progress) => progress.key === newProgress.key,
+        );
+
+        // -1 means no existing item with the same key
+        if (index !== -1) {
+          const updated = [...prev];
+          updated[index] = newProgress;
+          return updated;
+        }
+        return [...prev, newProgress];
+      });
+    } else {
+      // No key provided, simply add the new progress to the list
+      setProgress((prev) => [...prev, newProgress]);
+    }
   }, []);
 
   const stopSync = useCallback(() => {
@@ -35,6 +57,7 @@ export function useActivitiesSync(): UseActivitiesSyncReturn {
   const startSync = useCallback(async () => {
     // Close any existing connection before starting a new one
     stopSync();
+    fetchedCountRef.current = 0;
 
     try {
       // Verify if we have a CSRF token, if not fetch it
@@ -81,9 +104,13 @@ export function useActivitiesSync(): UseActivitiesSyncReturn {
               break;
 
             case "fetching_page":
+              fetchedCountRef.current += data.activitiesCount as number;
               addProgress({
+                key: "fetching_page",
                 type: "progress",
-                message: `Récupération de la page ${data.page} (${data.activitiesCount} activités)`,
+                message: `${fetchedCountRef.current} activité${
+                  fetchedCountRef.current > 1 ? "s" : ""
+                } récupérée${fetchedCountRef.current > 1 ? "s" : ""}`,
               });
               break;
 
