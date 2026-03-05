@@ -8,6 +8,7 @@ import {
 
 const activitiesService = new ActivitiesService();
 
+// GET /activities/sync/stream
 export const syncActivitiesStream = async (
   req: Request,
   res: Response,

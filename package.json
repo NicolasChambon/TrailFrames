@@ -9,6 +9,7 @@
     "ts:check": "npm run ts:check:back && npm run ts:check:front",
     "ts:check:back": "cd backend && npx tsc --noEmit",
     "ts:check:front": "cd frontend && npx tsc --noEmit",
+    "db:reset:dev": "cd backend && npx prisma migrate reset --force",
     "errors:check:back": "cd backend && npx tsc --noEmit && npx eslint . --ext .ts,.tsx --max-warnings 0",
     "errors:check:front": "cd frontend && npx tsc --noEmit && npx eslint . --ext .ts,.tsx --max-warnings 0",
     "errors:check": "npm run errors:check:back && npm run errors:check:front"
