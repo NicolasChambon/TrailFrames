@@ -9,6 +9,7 @@ import { useToastFromUrl } from "./hooks/useToastFromUrl";
 import Callback from "./pages/Callback";
 import Dashboard from "./pages/Dashboard";
 import Entry from "./pages/Entry";
+import Gallery from "./pages/Gallery";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StravaSync from "./pages/StravaSync";
@@ -28,6 +29,7 @@ function App() {
       <Routes>
         <Route element={<MinimalLayout />}>
           <Route element={<Entry />} path="/" />
+
           <Route
             element={
               <ProtectedRoute>
@@ -47,6 +49,7 @@ function App() {
             }
             path="/strava-sync"
           />
+
           <Route
             element={
               <ProtectedRoute>
@@ -55,10 +58,22 @@ function App() {
             }
             path="/dashboard"
           />
+
+          <Route
+            element={
+              <ProtectedRoute>
+                <Gallery />
+              </ProtectedRoute>
+            }
+            path="/gallery"
+          />
+
           <Route element={<Register />} path="/register" />
+
           <Route element={<Login />} path="/login" />
         </Route>
       </Routes>
+
       <Toaster position="top-center" />
     </>
   );

@@ -24,8 +24,8 @@ export default function StravaSync() {
   return (
     <div className="flex flex-col items-center gap-7">
       <TypographyH1 className="px-4">
-        En quelques clics, synchronisez votre compte Strava et retrouvez toutes
-        vos photos.
+        En quelques clics, synchronisez votre compte Strava et découvrez les
+        fonctionnalités de TrailFrames !
       </TypographyH1>
 
       <div className="flex flex-col items-center gap-4 sm:flex-row">

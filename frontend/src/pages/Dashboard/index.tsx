@@ -1,6 +1,8 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 import { HEADER_HEIGHT } from "@/components/Header";
+import { Button } from "@/components/ui/button";
 import { TypographyH2 } from "@/components/ui/typographyH2";
 import { TypographyP } from "@/components/ui/typographyP";
 import { TypographySubtitle } from "@/components/ui/typographySubtitle";
@@ -112,12 +114,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-2xl px-4">
+    <div className="px-4 flex flex-col items-center text-center">
       <TypographyH2>Bienvenue sur votre tableau de bord</TypographyH2>
       <TypographySubtitle className="text-sm">
-        Retrouvez ici toutes vos activités Strava synchronisées avec
-        TrailFrames. Cliquez sur une activité pour voir les photos associées.
+        Retrouvez ici toutes les fonctionnalités de TrailFrames.
       </TypographySubtitle>
+
+      <Link className="mt-4" to="/gallery">
+        <Button variant="default">Voir ma galerie de photos</Button>
+      </Link>
     </div>
   );
 }
