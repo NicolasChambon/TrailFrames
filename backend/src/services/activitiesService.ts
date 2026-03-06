@@ -101,57 +101,70 @@ export class ActivitiesService {
       const syncedAt = new Date();
 
       if (allActivities.length > 0) {
-        await prisma.$transaction(async (tx) => {
-          await tx.activity.createMany({
-            data: allActivities.map((activity) => ({
-              stravaActivityId: activity.id,
-              trailFramesUserId: user.id,
-              stravaAthleteId: activity.athlete.id,
-              stravaUploadId: activity.upload_id ?? null,
-              name: activity.name,
-              distance: activity.distance,
-              movingTime: activity.moving_time,
-              elapsedTime: activity.elapsed_time,
-              totalElevationGain: activity.total_elevation_gain,
-              elevHigh: activity.elev_high ?? null,
-              elevLow: activity.elev_low ?? null,
-              sportType: activity.sport_type,
-              startDate: new Date(activity.start_date),
-              startDateLocal: new Date(activity.start_date_local),
-              timezone: activity.timezone,
-              startLatlng: activity.start_latlng ?? [],
-              endLatlng: activity.end_latlng ?? [],
-              achievementCount: activity.achievement_count,
-              kudosCount: activity.kudos_count,
-              commentCount: activity.comment_count,
-              athleteCount: activity.athlete_count,
-              totalPhotoCount: activity.total_photo_count,
-              summaryPolyline: activity.map.summary_polyline ?? null,
-              trainer: activity.trainer,
-              commute: activity.commute,
-              manual: activity.manual,
-              private: activity.private,
-              flagged: activity.flagged,
-              workoutType: activity.workout_type ?? null,
-              averageSpeed: activity.average_speed,
-              maxSpeed: activity.max_speed,
-              hasKudoed: activity.has_kudoed,
-              gearId: activity.gear_id ?? null,
-              kilojoules: activity.kilojoules ?? null,
-              averageWatts: activity.average_watts ?? null,
-              deviceWatts: activity.device_watts ?? null,
-              maxWatts: activity.max_watts ?? null,
-              weightedAverageWatts: activity.weighted_average_watts ?? null,
-            })),
-            skipDuplicates: true,
-          });
+        // Cut into batches to avoid timeout on large volumes of activities
+        const BATCH_SIZE = 200;
+        const batches: SummaryActivity[][] = [];
+        for (let i = 0; i < allActivities.length; i += BATCH_SIZE) {
+          batches.push(allActivities.slice(i, i + BATCH_SIZE));
+        }
 
-          // 5. Update user's lastSyncedAt
-          await tx.user.update({
-            where: { id: userId },
-            data: { lastSyncedAt: syncedAt },
-          });
-        });
+        await prisma.$transaction(
+          async (tx) => {
+            for (const batch of batches) {
+              await tx.activity.createMany({
+                data: batch.map((activity) => ({
+                  stravaActivityId: activity.id,
+                  trailFramesUserId: user.id,
+                  stravaAthleteId: activity.athlete.id,
+                  stravaUploadId: activity.upload_id ?? null,
+                  name: activity.name,
+                  distance: activity.distance,
+                  movingTime: activity.moving_time,
+                  elapsedTime: activity.elapsed_time,
+                  totalElevationGain: activity.total_elevation_gain,
+                  elevHigh: activity.elev_high ?? null,
+                  elevLow: activity.elev_low ?? null,
+                  sportType: activity.sport_type,
+                  startDate: new Date(activity.start_date),
+                  startDateLocal: new Date(activity.start_date_local),
+                  timezone: activity.timezone,
+                  startLatlng: activity.start_latlng ?? [],
+                  endLatlng: activity.end_latlng ?? [],
+                  achievementCount: activity.achievement_count,
+                  kudosCount: activity.kudos_count,
+                  commentCount: activity.comment_count,
+                  athleteCount: activity.athlete_count,
+                  totalPhotoCount: activity.total_photo_count,
+                  summaryPolyline: activity.map.summary_polyline ?? null,
+                  trainer: activity.trainer,
+                  commute: activity.commute,
+                  manual: activity.manual,
+                  private: activity.private,
+                  flagged: activity.flagged,
+                  workoutType: activity.workout_type ?? null,
+                  averageSpeed: activity.average_speed,
+                  maxSpeed: activity.max_speed,
+                  hasKudoed: activity.has_kudoed,
+                  gearId: activity.gear_id ?? null,
+                  kilojoules: activity.kilojoules ?? null,
+                  averageWatts: activity.average_watts ?? null,
+                  deviceWatts: activity.device_watts ?? null,
+                  maxWatts: activity.max_watts ?? null,
+                  weightedAverageWatts: activity.weighted_average_watts ?? null,
+                })),
+                skipDuplicates: true,
+              });
+            }
+
+            // 5. Update user's lastSyncedAt
+            await tx.user.update({
+              where: { id: userId },
+              data: { lastSyncedAt: syncedAt },
+            });
+          },
+          // Timeout of 2 minutes for the whole transaction to accommodate large syncs (e.g. 1000+ activities)
+          { timeout: 120000 },
+        );
       } else {
         // Even if no new activities, mark as synced
         await prisma.user.update({
