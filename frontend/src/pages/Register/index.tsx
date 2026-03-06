@@ -2,7 +2,6 @@ import { AlertCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import LogoButton from "@/components/LogoButton";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +16,6 @@ import {
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { formatError } from "@/lib/formatError";
 import { useMutation } from "@/lib/useMutation";
@@ -26,10 +24,11 @@ import {
   isPasswordStrong,
 } from "@/pages/Register/passwordValidation";
 import { ValidationMessage } from "@/pages/Register/ValidationMessage";
+import { useAuthStore } from "@/stores/authStore";
 import type { RegisterResponse } from "@/types/auth";
 
 export default function Register() {
-  const { login: setAuthUser } = useAuth();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const navigate = useNavigate();
 
@@ -49,20 +48,20 @@ export default function Register() {
     error,
     data,
   } = useMutation<RegisterResponse>(() =>
-    api.post("/auth/register", { email, password })
+    api.post("/auth/register", { email, password }),
   );
 
   const formatedErr = formatError(error);
 
   useEffect(() => {
     if (data && !error) {
-      setAuthUser(data.user);
+      setUser(data.user);
       const timer = setTimeout(() => {
         navigate("/strava-sync");
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [data, error, navigate, setAuthUser]);
+  }, [data, error, navigate, setUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,135 +69,128 @@ export default function Register() {
   };
 
   return (
-    <>
-      <LogoButton />
-      <main className="min-h-screen flex flex-col justify-center items-center gap-7">
-        <Card className="w-full max-w-md">
-          <form onSubmit={handleSubmit}>
-            <CardHeader className="mb-4">
-              <CardTitle>S'inscrire gratuitement</CardTitle>
-              <CardDescription>
-                Rejoignez TrailFrames en quelques clics et commencez à explorer
-                vos photos Strava.
-              </CardDescription>
-              <CardAction>
-                <Link to="/login">
-                  <Button type="button" variant="link">
-                    Connexion{" "}
-                  </Button>
-                </Link>
-              </CardAction>
-            </CardHeader>
-            <CardContent className="mb-4">
-              <div className="flex flex-col gap-6">
-                <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-
-                  <Input
-                    required
-                    id="email"
-                    placeholder="john.doe@example.com"
-                    type="email"
-                    value={email}
-                    onChange={(e) =>
-                      setEmail(e.target.value.trim().toLowerCase())
-                    }
-                  />
-
-                  <FieldDescription className="text-xs">
-                    {isEmailValid ? (
-                      <span>
-                        <span className="text-green-600">✓</span> Adresse mail
-                        valide
-                      </span>
-                    ) : (
-                      <span>○ Adresse mail invalide</span>
-                    )}
-                  </FieldDescription>
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-
-                  <Input
-                    required
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-
-                  <FieldDescription className="text-xs">
-                    {passwordValidation.map((criteria) => (
-                      <ValidationMessage
-                        isValid={criteria.isValid}
-                        key={criteria.key}
-                      >
-                        {criteria.label}
-                      </ValidationMessage>
-                    ))}
-                  </FieldDescription>
-                </Field>
-
-                <Field>
-                  <FieldLabel
-                    className={passwordStrong ? "" : "text-gray-400"}
-                    htmlFor="confirm-password"
-                  >
-                    Confirmer le mot de passe
-                  </FieldLabel>
-
-                  <Input
-                    required
-                    disabled={!passwordStrong}
-                    id="confirm-password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-
-                  <FieldDescription className="text-xs">
-                    <ValidationMessage
-                      disabledStyle={!passwordStrong}
-                      isValid={passwordsMatch}
-                    >
-                      {passwordsMatch
-                        ? "Les mots de passe correspondent"
-                        : "Les mots de passe ne correspondent pas"}
-                    </ValidationMessage>
-                  </FieldDescription>
-                </Field>
-              </div>
-            </CardContent>
-            <CardFooter className="flex-col gap-2">
-              <Button
-                className="w-full mb-2"
-                disabled={
-                  !(isEmailValid && passwordStrong && passwordsMatch) ||
-                  isLoading ||
-                  !!data
-                }
-                type="submit"
-              >
-                {isLoading && (
-                  <>
-                    <Spinner className="w-4 h-4 mr-2" />
-                    Inscription en cours
-                  </>
-                )}
-                {!isLoading && !data && "S'inscrire"}
-                {data && !error && "Inscription réussie !"}
+    <Card className="w-full max-w-md m-2">
+      <form onSubmit={handleSubmit}>
+        <CardHeader className="mb-4">
+          <CardTitle>S'inscrire gratuitement</CardTitle>
+          <CardDescription>
+            Rejoignez TrailFrames en quelques clics et commencez à explorer vos
+            photos Strava.
+          </CardDescription>
+          <CardAction>
+            <Link to="/login">
+              <Button type="button" variant="link">
+                Connexion{" "}
               </Button>
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircleIcon />
-                  <AlertTitle>{formatedErr}</AlertTitle>
-                </Alert>
-              )}
-            </CardFooter>
-          </form>
-        </Card>
-      </main>
-    </>
+            </Link>
+          </CardAction>
+        </CardHeader>
+        <CardContent className="mb-4">
+          <div className="flex flex-col gap-6">
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+
+              <Input
+                required
+                id="email"
+                placeholder="john.doe@example.com"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
+              />
+
+              <FieldDescription className="text-xs">
+                {isEmailValid ? (
+                  <span>
+                    <span className="text-green-600">✓</span> Adresse mail
+                    valide
+                  </span>
+                ) : (
+                  <span>○ Adresse mail invalide</span>
+                )}
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
+
+              <Input
+                required
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <FieldDescription className="text-xs">
+                {passwordValidation.map((criteria) => (
+                  <ValidationMessage
+                    isValid={criteria.isValid}
+                    key={criteria.key}
+                  >
+                    {criteria.label}
+                  </ValidationMessage>
+                ))}
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel
+                className={passwordStrong ? "" : "text-gray-400"}
+                htmlFor="confirm-password"
+              >
+                Confirmer le mot de passe
+              </FieldLabel>
+
+              <Input
+                required
+                disabled={!passwordStrong}
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+
+              <FieldDescription className="text-xs">
+                <ValidationMessage
+                  disabledStyle={!passwordStrong}
+                  isValid={passwordsMatch}
+                >
+                  {passwordsMatch
+                    ? "Les mots de passe correspondent"
+                    : "Les mots de passe ne correspondent pas"}
+                </ValidationMessage>
+              </FieldDescription>
+            </Field>
+          </div>
+        </CardContent>
+        <CardFooter className="flex-col gap-2">
+          <Button
+            className="w-full mb-2"
+            disabled={
+              !(isEmailValid && passwordStrong && passwordsMatch) ||
+              isLoading ||
+              !!data
+            }
+            type="submit"
+          >
+            {isLoading && (
+              <>
+                <Spinner className="w-4 h-4 mr-2" />
+                Inscription en cours
+              </>
+            )}
+            {!isLoading && !data && "S'inscrire"}
+            {data && !error && "Inscription réussie !"}
+          </Button>
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>{formatedErr}</AlertTitle>
+            </Alert>
+          )}
+        </CardFooter>
+      </form>
+    </Card>
   );
 }

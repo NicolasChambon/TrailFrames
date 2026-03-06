@@ -1,37 +1,45 @@
-import LogoutButton from "@/components/LogoutButton";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { TypographyH1 } from "@/components/ui/typographyH1";
 import { generateStravaAuthUrl } from "@/lib/stravaAuth";
+import { useAuthStore } from "@/stores/authStore";
 
-// TODO: plan to implement a header with a logout button
 export default function StravaSync() {
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+
+  // Redirect if user is already connected to Strava
+  useEffect(() => {
+    if (user && user.stravaAthleteId) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
+
   const handleConnectStrava = () => {
     const authUrl = generateStravaAuthUrl();
     window.location.href = authUrl;
   };
 
   return (
-    <>
-      <LogoutButton />
-      <main className="min-h-screen flex flex-col justify-center items-center gap-7">
-        <TypographyH1>
-          En quelques clics, synchronisez votre compte Strava et retrouvez
-          toutes vos photos.
-        </TypographyH1>
+    <div className="flex flex-col items-center gap-7">
+      <TypographyH1 className="px-4">
+        En quelques clics, synchronisez votre compte Strava et découvrez les
+        fonctionnalités de TrailFrames !
+      </TypographyH1>
 
-        <div className="flex gap-4">
-          <Button onClick={handleConnectStrava}>
-            Je synchronise mon compte Strava
-          </Button>
-          <a
-            href="https://www.strava.com/register"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <Button variant="outline">Je crée un compte Strava</Button>
-          </a>
-        </div>
-      </main>
-    </>
+      <div className="flex flex-col items-center gap-4 sm:flex-row">
+        <Button onClick={handleConnectStrava}>
+          Je synchronise mon compte Strava
+        </Button>
+        <a
+          href="https://www.strava.com/register"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <Button variant="outline">Je crée un compte Strava</Button>
+        </a>
+      </div>
+    </div>
   );
 }

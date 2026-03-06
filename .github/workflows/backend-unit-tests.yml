@@ -6,9 +6,6 @@ on:
       - dev
       - staging
       - main
-    paths:
-      - "backend/**"
-      - ".github/workflows/backend-unit-tests.yml"
 
 jobs:
   backend-unit-tests:

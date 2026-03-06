@@ -8,13 +8,31 @@ const isProduction = process.env.NODE_ENV === "production";
 // It stocks the secret in an HttpOnly cookie and expects the token to be sent in the request header 'x-csrf-token'
 export const csrfProtection = csurf({
   cookie: {
+    httpOnly: true, // Prevent access via JavaScript (mitigates XSS)
+    secure: isProduction, // Only send over HTTPS in production
+    sameSite: isProduction ? "none" : "lax", // Because frontend and backend are on different domains in production
+  },
+  value: (req) => {
+    // Read the token from X-CSRF-Token header
+    return req.headers["x-csrf-token"] as string;
+  },
+});
+
+// TODO: we can maybe factorise the two middlewares and only change the value function
+// CSRF middleware for SSE routes (accepts query param)
+// EventSource cannot send custom headers, so we accept the token as a query parameter
+export const csrfProtectionSSE = csurf({
+  cookie: {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
   },
   value: (req) => {
-    // Accept both case variations of the header
-    return req.headers["x-csrf-token"] as string;
+    // Try query parameter first for SSE routes,
+    // then fallback to header for regular routes
+    return (
+      (req.query.csrfToken as string) || (req.headers["x-csrf-token"] as string)
+    );
   },
 });
 
@@ -28,7 +46,7 @@ export function csrfErrorHandler(
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   // Only handle CSRF-specific errors here
   if ("code" in error && error.code === "EBADCSRFTOKEN") {

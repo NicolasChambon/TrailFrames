@@ -5,6 +5,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    globalSetup:
+      process.env.TEST_TYPE === "integration"
+        ? ["./tests/globalSetup.ts"]
+        : [],
     setupFiles:
       process.env.TEST_TYPE === "integration" ? ["./tests/setup.ts"] : [],
     include: ["tests/**/*.test.ts"],

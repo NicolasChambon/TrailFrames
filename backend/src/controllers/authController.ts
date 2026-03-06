@@ -20,7 +20,7 @@ const tokenService = new TokenService();
 export async function register(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const parseResult = registerSchema.safeParse(req.body);
@@ -149,7 +149,7 @@ export async function logout(req: Request, res: Response) {
 export async function getCurrentUser(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const userId = req.user?.userId;
@@ -182,7 +182,7 @@ export async function getCurrentUser(
 export async function handleCallback(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const querySchema = z.object({
@@ -210,9 +210,14 @@ export async function handleCallback(
       stravaAthleteId: user.stravaAthleteId,
     });
 
+    const userResponse = {
+      ...user,
+      stravaAthleteId: user.stravaAthleteId?.toString() ?? null,
+    };
+
     res.status(200).json({
       success: true,
-      trailFramesUserId: user.id,
+      user: userResponse,
       message: "Strava authentication successful",
     });
   } catch (error) {

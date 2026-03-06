@@ -1,5 +1,6 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/authStore";
 import {
   Empty,
   EmptyDescription,
@@ -8,18 +9,24 @@ import {
   EmptyTitle,
 } from "./ui/empty";
 import { Spinner } from "./ui/spinner";
-import type { ReactNode } from "react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const navigate = useNavigate();
+
+  if (!isLoading && !isAuthenticated) {
+    navigate("/login?toast=not-authenticated", { replace: true });
+    return null;
+  }
 
   if (isLoading) {
     return (
-      <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+      <div className="flex flex-col justify-center items-center gap-4">
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -32,12 +39,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
-      </main>
+      </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate replace to="/login" />;
   }
 
   return <>{children}</>;

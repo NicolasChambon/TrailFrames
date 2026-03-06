@@ -9,76 +9,65 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { TypographyH2 } from "@/components/ui/typographyH2";
-import { TypographyP } from "@/components/ui/typographyP";
 import { fetcher } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 import type { AuthCallbackResponse } from "@/types/auth";
 
 export default function Callback() {
   const navigate = useNavigate();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
   const errorParam = searchParams.get("error");
 
-  const { data, error, isLoading } = useSWR<AuthCallbackResponse, Error>(
+  // Early validation: redirect immediately if error param or missing code
+  useEffect(() => {
+    if (errorParam) {
+      navigate("/strava-sync?toast=callback-error-param", { replace: true });
+      return;
+    }
+    if (!code) {
+      navigate("/strava-sync?toast=callback-missing-code", { replace: true });
+      return;
+    }
+  }, [errorParam, code, navigate]);
+
+  // Fetch Strava token and athlete info using the provided code
+  const { data, error } = useSWR<AuthCallbackResponse, Error>(
     code && !errorParam ? `/auth/strava/callback?code=${code}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       shouldRetryOnError: false,
-    }
+    },
   );
 
+  // Handle API response
   useEffect(() => {
-    if (errorParam || !code || error) {
-      setTimeout(() => navigate("/strava-sync"), 3000);
-      return;
+    if (data?.success && data.user) {
+      setUser(data.user);
+      navigate("/dashboard?toast=callback-success", { replace: true });
+    } else if (error) {
+      navigate("/strava-sync?toast=callback-error", { replace: true });
     }
-
-    if (data?.success) {
-      localStorage.setItem("trailFramesUserId", data.trailFramesUserId);
-      navigate("/dashboard");
-    }
-  }, [data, error, code, errorParam, navigate]);
-
-  if (errorParam) {
-    return <ErrorState>Authorisation refusée.</ErrorState>;
-  }
-  if (!code) {
-    return <ErrorState>Code d'autorisation manquant.</ErrorState>;
-  }
-  if (error) {
-    return <ErrorState>Erreur lors de l'authentification.</ErrorState>;
-  }
+  }, [data, error, navigate, setUser]);
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
+    <div className="flex flex-col justify-center items-center gap-4">
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <Spinner />
           </EmptyMedia>
-          <EmptyTitle>
-            {isLoading ? "Connection en cours..." : "Redirection..."}
-          </EmptyTitle>
+          <EmptyTitle>Connexion en cours...</EmptyTitle>
           <EmptyDescription>
-            {isLoading
-              ? "Veuillez patienter pendant que nous vous connectons à votre compte Strava."
-              : "Vous allez être redirigé vers la page d'accueil."}
+            Veuillez patienter pendant que nous vous connectons à votre compte
+            Strava.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
-    </main>
-  );
-}
-
-function ErrorState({ children }: { children: React.ReactNode }) {
-  return (
-    <main className="min-h-screen flex flex-col justify-center items-center gap-4">
-      <TypographyH2>{children}</TypographyH2>
-      <TypographyP>Redirection vers la page d'accueil...</TypographyP>
-    </main>
+    </div>
   );
 }

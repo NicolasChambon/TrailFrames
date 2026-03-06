@@ -16,6 +16,8 @@ const authLimiter = rateLimit({
   windowMs: WINDOW_MIN * 60 * 1000, // 15 minutes
   max: 5,
   message: `Too many attempts, please try again after ${WINDOW_MIN} minutes.`,
+  // Bypass rate limiting in test environment to avoid flaky tests
+  skip: () => process.env.NODE_ENV === "test",
 });
 
 const router = Router();

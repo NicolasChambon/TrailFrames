@@ -73,18 +73,24 @@ enum Sex {
 }
 
 model User {
+  // Primary fields
   id                    String      @id @default(cuid())
   email                 String      @unique
+  password              String
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  // Strava OAuth fields
   stravaAthleteId       BigInt?     @unique
-  username              String?
-  lastName              String?
-  firstName             String?
-  refreshTokens         RefreshToken[]
   stravaAccessToken     String?                          // Encrypted with AES-256-GCM
   stravaRefreshToken    String?                          // Encrypted with AES-256-GCM       
   stravaTokenExpiresAt  DateTime?
-  password              String
-  activities            Activity[]
+  lastSyncedAt          DateTime?
+
+  // Athlete profile data (from Strava)
+  username              String?
+  firstName             String?
+  lastName              String?
   bio                   String?
   city                  String?
   state                 String?
@@ -100,8 +106,10 @@ model User {
   summit                Boolean?
   stravaCreatedAt       DateTime?
   stravaUpdatedAt       DateTime?
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+
+  // Relations
+  activities            Activity[]
+  refreshTokens         RefreshToken[]
 
   @@index([stravaAthleteId])
 }
