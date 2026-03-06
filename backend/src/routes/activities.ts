@@ -5,7 +5,6 @@ import { csrfProtectionSSE } from "@/middlewares/csrf";
 
 const router = Router();
 
-// TODO: plan to implement integration tests for this route
 // GET /activities/sync/stream
 router.get(
   "/sync/stream",
