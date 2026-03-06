@@ -10,6 +10,7 @@ const createMockUser = (overrides?: Partial<User>): User => ({
   id: "123",
   email: "test@example.com",
   stravaAthleteId: null,
+  lastSyncedAt: null,
   username: null,
   lastName: null,
   firstName: null,
