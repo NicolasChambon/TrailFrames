@@ -86,7 +86,7 @@ export function useActivitiesSync(): UseActivitiesSyncReturn {
         setIsSyncing(true);
         addProgress({
           type: "info",
-          message: "Connexion établie, démarrage de la synchronisation...",
+          message: "Connexion établie",
         });
       };
 
@@ -99,7 +99,7 @@ export function useActivitiesSync(): UseActivitiesSyncReturn {
             case "started":
               addProgress({
                 type: "info",
-                message: "Synchronisation démarrée...",
+                message: "Synchronisation démarrée",
               });
               break;
 
