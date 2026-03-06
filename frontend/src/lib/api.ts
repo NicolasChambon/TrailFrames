@@ -14,11 +14,17 @@ let csrfToken: string | null = null;
 export async function fetchCsrfToken(): Promise<void> {
   try {
     const response = await api.get("/csrf-token");
-    csrfToken = response.data.csrfToken;
+    csrfToken = response.data.csrfToken; // Store the token in memory for future requests
   } catch (error) {
     console.error("Failed to fetch CSRF token:", error);
     throw error;
   }
+}
+
+// Getter to access the CSRF token from other parts of the application if
+// needed (e.g., for SSE connections that cannot use headers)
+export function getCsrfToken(): string | null {
+  return csrfToken;
 }
 
 // For testing purposes only
@@ -53,10 +59,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Error CSRF detection
     if (
       error.response?.status === 403 &&
       error.response?.data?.error?.includes("CSRF") &&
-      !originalRequest._retry
+      !originalRequest._retry // Prevent infinite retry loops
     ) {
       originalRequest._retry = true;
 
@@ -66,6 +73,7 @@ api.interceptors.response.use(
         originalRequest.headers["X-CSRF-Token"] = csrfToken;
       }
 
+      // Retry the original request with the new CSRF token
       return api(originalRequest);
     }
 

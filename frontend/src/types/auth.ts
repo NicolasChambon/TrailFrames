@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   stravaAthleteId: string | null;
+  lastSyncedAt: string | null;
   username: string | null;
   lastName: string | null;
   firstName: string | null;
@@ -37,7 +38,7 @@ export interface CurrentUserResponse {
 
 export interface AuthCallbackResponse {
   success: boolean;
-  trailFramesUserId: string;
+  user: User;
   message: string;
 }
 

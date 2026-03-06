@@ -49,7 +49,7 @@ export function verifyRefreshToken(token: string): JwtPayload {
 
 export async function setAuthCookies(
   res: Response,
-  payload: JwtPayload
+  payload: JwtPayload,
 ): Promise<void> {
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
@@ -75,7 +75,7 @@ export async function setAuthCookies(
 
 export async function clearAuthCookies(
   res: Response,
-  refreshToken: string
+  refreshToken: string,
 ): Promise<void> {
   await tokenService.revokeRefreshToken(refreshToken);
 

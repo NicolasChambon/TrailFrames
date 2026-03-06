@@ -16,6 +16,7 @@ const safeUserProperties = {
   id: true,
   email: true,
   stravaAthleteId: true,
+  lastSyncedAt: true,
   username: true,
   firstName: true,
   lastName: true,
@@ -57,6 +58,7 @@ export class AuthService {
     return user;
   }
 
+  // Fetch Strava tokens and athlete info using the provided code, then save it to the user record
   async authenticateWithStrava(code: string, trailFramesUserId: string) {
     const tokenData = await stravaService.exchangeCodeForToken(code);
 
@@ -92,7 +94,7 @@ export class AuthService {
   }
 
   async getRefreshedStravaAccessToken(
-    trailFramesUserId: string
+    trailFramesUserId: string,
   ): Promise<string> {
     const user = await prisma.user.findUnique({
       where: { id: trailFramesUserId },
@@ -117,7 +119,7 @@ export class AuthService {
 
     if (isTokenExpiringSoon) {
       const tokenData = await stravaService.refreshAccessToken(
-        user.stravaRefreshToken
+        user.stravaRefreshToken,
       );
 
       await prisma.user.update({

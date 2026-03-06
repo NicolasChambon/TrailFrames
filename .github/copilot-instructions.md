@@ -15,8 +15,7 @@ TrailFrames est une application web pour visualiser et gérer les activités Str
 /
 ├── backend/         → API REST (Express + TypeScript + Prisma)
 ├── frontend/        → Application React (Vite + TypeScript + TailwindCSS)
-├── docs/           → Documentation
-└── TODO/           → Tâches et planification
+├── docs/            → Documentation
 ```
 
 ### Backend (`backend/`)
@@ -340,7 +339,7 @@ cd frontend && npm install
 
 ```env
 NODE_ENV=development
-PORT=3000
+PORT=4000
 DATABASE_URL=postgresql://...
 JWT_SECRET=...
 JWT_REFRESH_SECRET=...
@@ -352,7 +351,7 @@ FRONTEND_DEV_URL=http://localhost:5173
 ### Frontend (.env)
 
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:4000
 VITE_STRAVA_CLIENT_ID=...
 ```
 

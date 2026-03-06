@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, afterEach, beforeEach } from "vitest";
 import { logger } from "@/lib/logger";
-import { setupTestDb, clearTestDb } from "./helpers/testDb";
+import { clearTestDb } from "./helpers/testDb";
 import { server as mockServer } from "./mocks/strava.mock";
 import "dotenv/config";
 
@@ -35,10 +35,7 @@ beforeAll(async () => {
   logger.info("🚀 Setting up test environment...");
 
   try {
-    // Apply migrations on test database
-    await setupTestDb();
-    logger.info("✅ Database migrations applied");
-
+    // Migrations are applied once globally in tests/globalSetup.ts
     // Clear any existing data from previous test runs
     await clearTestDb();
     logger.info("✅ Database cleared");

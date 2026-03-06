@@ -1,5 +1,4 @@
-import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import {
@@ -10,80 +9,50 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCountdown } from "@/hooks/useCountdown";
 import { fetcher } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 import type { AuthCallbackResponse } from "@/types/auth";
-
-const REDIRECT_TIMEOUT = 5;
-const SUCCESS_REDIRECT_TIMEOUT = 2;
 
 export default function Callback() {
   const navigate = useNavigate();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
   const errorParam = searchParams.get("error");
 
-  const { data, error, isLoading } = useSWR<AuthCallbackResponse, Error>(
+  // Early validation: redirect immediately if error param or missing code
+  useEffect(() => {
+    if (errorParam) {
+      navigate("/strava-sync?toast=callback-error-param", { replace: true });
+      return;
+    }
+    if (!code) {
+      navigate("/strava-sync?toast=callback-missing-code", { replace: true });
+      return;
+    }
+  }, [errorParam, code, navigate]);
+
+  // Fetch Strava token and athlete info using the provided code
+  const { data, error } = useSWR<AuthCallbackResponse, Error>(
     code && !errorParam ? `/auth/strava/callback?code=${code}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       shouldRetryOnError: false,
-    }
+    },
   );
 
-  const hasError = Boolean(errorParam || !code || error);
-
-  const errorSecondsLeft = useCountdown(
-    REDIRECT_TIMEOUT,
-    () => navigate("/strava-sync"),
-    hasError
-  );
-
-  const successSecondsLeft = useCountdown(
-    SUCCESS_REDIRECT_TIMEOUT,
-    () => navigate("/dashboard"),
-    showSuccess
-  );
-
+  // Handle API response
   useEffect(() => {
-    if (data?.success) {
-      setShowSuccess(true);
+    if (data?.success && data.user) {
+      setUser(data.user);
+      navigate("/dashboard?toast=callback-success", { replace: true });
+    } else if (error) {
+      navigate("/strava-sync?toast=callback-error", { replace: true });
     }
-  }, [data]);
-
-  if (showSuccess) {
-    return (
-      <CallbackSuccessState secondsLeft={successSecondsLeft}>
-        Connexion réussie !
-      </CallbackSuccessState>
-    );
-  }
-
-  if (errorParam) {
-    return (
-      <CallbackErrorState secondsLeft={errorSecondsLeft}>
-        Autorisation refusée.
-      </CallbackErrorState>
-    );
-  }
-  if (!code) {
-    return (
-      <CallbackErrorState secondsLeft={errorSecondsLeft}>
-        Code d'autorisation manquant.
-      </CallbackErrorState>
-    );
-  }
-  if (error) {
-    return (
-      <CallbackErrorState secondsLeft={errorSecondsLeft}>
-        Erreur lors de l'authentification.
-      </CallbackErrorState>
-    );
-  }
+  }, [data, error, navigate, setUser]);
 
   return (
     <div className="flex flex-col justify-center items-center gap-4">
@@ -92,66 +61,13 @@ export default function Callback() {
           <EmptyMedia variant="icon">
             <Spinner />
           </EmptyMedia>
-          <EmptyTitle>
-            {isLoading ? "Connexion en cours..." : "Redirection..."}
-          </EmptyTitle>
+          <EmptyTitle>Connexion en cours...</EmptyTitle>
           <EmptyDescription>
-            {isLoading
-              ? "Veuillez patienter pendant que nous vous connectons à votre compte Strava."
-              : "Vous allez être redirigé vers la page d'accueil."}
+            Veuillez patienter pendant que nous vous connectons à votre compte
+            Strava.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
     </div>
-  );
-}
-
-function CallbackErrorState({
-  children,
-  secondsLeft,
-}: {
-  children: React.ReactNode;
-  secondsLeft: number;
-}) {
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <TriangleAlertIcon />
-        </EmptyMedia>
-        <EmptyTitle>{children}</EmptyTitle>
-        <EmptyDescription>
-          Vous serez automatiquement redirigé dans{" "}
-          <span className="text-foreground">
-            {secondsLeft} {secondsLeft === 1 ? "seconde" : "secondes"}
-          </span>
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
-  );
-}
-
-function CallbackSuccessState({
-  children,
-  secondsLeft,
-}: {
-  children: React.ReactNode;
-  secondsLeft: number;
-}) {
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <CheckCircle2Icon />
-        </EmptyMedia>
-        <EmptyTitle>{children}</EmptyTitle>
-        <EmptyDescription>
-          Vous allez être redirigé vers votre tableau de bord dans{" "}
-          <span className="text-foreground">
-            {secondsLeft} {secondsLeft === 1 ? "seconde" : "secondes"}
-          </span>
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
   );
 }

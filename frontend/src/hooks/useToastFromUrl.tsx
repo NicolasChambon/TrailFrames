@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { showErrorToast } from "@/lib/toast-helpers";
+import { showErrorToast, showSuccessToast } from "@/lib/toast-helpers";
 
 /**
  * Hook to handle toast notifications from URL query parameters
@@ -19,6 +19,27 @@ export function useToastFromUrl() {
         break;
       case "not-authenticated":
         showErrorToast("Vous devez être connecté pour accéder à cette page.");
+        break;
+      case "callback-success":
+        showSuccessToast("Connexion réussie ! Bienvenue sur TrailFrames.");
+        break;
+      case "callback-error":
+        showErrorToast(
+          "Une erreur est survenue lors de la connexion à Strava. Veuillez réessayer.",
+        );
+        break;
+      case "callback-error-param":
+        showErrorToast(
+          "L'autorisation a été refusée. Veuillez autoriser TrailFrames à accéder à votre compte Strava.",
+        );
+        break;
+      case "callback-missing-code":
+        showErrorToast(
+          "Aucun code d'autorisation reçu. Veuillez réessayer la connexion à Strava.",
+        );
+        break;
+      default:
+        // Optionally handle unknown toast types or ignore
         break;
     }
 

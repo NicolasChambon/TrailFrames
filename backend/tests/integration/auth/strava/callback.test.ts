@@ -50,7 +50,8 @@ describe("Strava Authentication Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.trailFramesUserId).toBeDefined();
+      expect(response.body.user).toBeDefined();
+      expect(response.body.user.id).toBeDefined();
       expect(response.body.message).toBe("Strava authentication successful");
 
       // Verify user in database has Strava tokens (encrypted)
