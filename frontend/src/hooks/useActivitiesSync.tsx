@@ -6,7 +6,6 @@ interface SyncProgress {
   current?: number;
   total?: number;
   type: "info" | "success" | "error" | "progress";
-  /** Clé optionnelle : si fournie, un item existant avec la même clé est mis à jour plutôt qu'ajouté */
   key?: string;
 }
 
