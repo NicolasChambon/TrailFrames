@@ -16,7 +16,7 @@ export class StravaService {
 
     if (!clientId || !clientSecret) {
       throw new BadRequestError(
-        "Missing required environment variables: STRAVA_CLIENT_ID or/and STRAVA_CLIENT_SECRET"
+        "Missing required environment variables: STRAVA_CLIENT_ID or/and STRAVA_CLIENT_SECRET",
       );
     }
 
@@ -37,7 +37,7 @@ export class StravaService {
   }
 
   async refreshAccessToken(
-    encryptedStravaRefreshToken: string
+    encryptedStravaRefreshToken: string,
   ): Promise<StravaTokenResponse> {
     const stravaRefreshToken = decrypt(encryptedStravaRefreshToken);
 
@@ -51,7 +51,7 @@ export class StravaService {
     return response.data;
   }
 
-  async getActivities({
+  async getLoggedInAthleteActivities({
     encryptedStravaAccessToken,
     page = 1,
     perPage = 200,

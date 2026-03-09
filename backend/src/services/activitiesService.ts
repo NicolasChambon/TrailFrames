@@ -67,7 +67,7 @@ export class ActivitiesService {
       let hasMore = true;
 
       while (hasMore) {
-        const activities = await stravaService.getActivities({
+        const activities = await stravaService.getLoggedInAthleteActivities({
           encryptedStravaAccessToken: user.stravaAccessToken,
           page,
           perPage,
