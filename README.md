@@ -116,9 +116,8 @@ VITE_STRAVA_CLIENT_ID=your-strava-client-id
 4. **Initialize the database**
 
 ```bash
-cd backend
-npx prisma migrate dev
-npx prisma generate
+npm run db:migrate:dev
+npm run db:generate
 ```
 
 ### Run in Development

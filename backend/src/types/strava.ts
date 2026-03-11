@@ -86,6 +86,33 @@ export type PhotosSummary = {
   };
 };
 
+export type StravaPhoto = {
+  unique_id: string;
+  athlete_id: number;
+  activity_id: number;
+  activity_name: string;
+  post_id: number | null;
+  ressource_state: number;
+  caption: string;
+  type: number;
+  source: number;
+  status: number;
+  uploaded_at: string;
+  created_at: string;
+  created_at_local: string;
+  urls: {
+    [size: string]: string; // e.g., "2048": "https://..."
+  };
+  placeholder_image: string | null;
+  sizes: {
+    [size: string]: [number, number]; // e.g., "2048": [width, height]
+  };
+  default_photo: boolean;
+  cursor: string | null;
+  is_strava_strength: boolean;
+  location: LatLng | null;
+};
+
 export type SummaryGear = {
   id: string;
   resource_state: 2 | 3; // 2 = summary, 3 = detailed

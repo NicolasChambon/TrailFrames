@@ -72,6 +72,15 @@ enum Sex {
   O
 }
 
+// Enum to track the status of the first-time photo sync process for a user.
+enum PhotoSyncStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  ERROR
+}
+
 model User {
   // Primary fields
   id                    String      @id @default(cuid())
@@ -107,6 +116,12 @@ model User {
   stravaCreatedAt       DateTime?
   stravaUpdatedAt       DateTime?
 
+  // Photo sync state
+  photoSyncStatus       PhotoSyncStatus @default(NOT_STARTED)
+  photoSyncProcessed    Int             @default(0)     // How many photos have been processed
+  photoSyncTotal        Int             @default(0)     // Total number of activities with photos to sync
+  photoSyncResumedAt    DateTime?                       // If job was paused because of rate limits, a which time it must be resumed
+
   // Relations
   activities            Activity[]
   refreshTokens         RefreshToken[]
@@ -116,19 +131,22 @@ model User {
 
 model RefreshToken {
   id         String   @id @default(cuid())
-  token      String   @unique
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token      String   @unique
   expiresAt  DateTime
   createdAt  DateTime @default(now())
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Activity {
   id                    String    @id @default(cuid())
   stravaActivityId      BigInt    @unique
   trailFramesUserId     String
-  user                  User      @relation(fields: [trailFramesUserId], references: [id])
   stravaAthleteId       BigInt
+
   name                  String
   distance              Float
   movingTime            Int
@@ -164,11 +182,33 @@ model Activity {
   deviceWatts           Boolean?
   maxWatts              Int?
   weightedAverageWatts  Int?
+  photosLastFetchedAt   DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+
+  // Relations
+  user                  User      @relation(fields: [trailFramesUserId], references: [id], onDelete: Cascade)
+  photos                Photo[]
 
   @@index([trailFramesUserId])
   @@index([startDate])
   @@index([sportType])
 }
  
+model Photo {
+  id                    Int       @id @default(autoincrement())
+  stravaUniqueId        String    @unique
+  stravaActivityId      BigInt
+  url                   String
+  caption               String?
+  location              Float[]
+  stravaUploadedAt      DateTime
+  stravaCreatedAt       DateTime
+  stravaCreatedAtLocal  DateTime
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  activity              Activity  @relation(fields: [stravaActivityId], references: [stravaActivityId], onDelete: Cascade)
+}

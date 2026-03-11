@@ -25,11 +25,21 @@ export class BadRequestError extends Error {
   }
 }
 
+export class RateLimitError extends Error {
+  statusCode = 429;
+  retryAfterMs: number;
+  constructor(message: string, retryAfterMs: number) {
+    super(message);
+    this.name = "RateLimitError";
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
 export function errorHandler(
   error: Error,
   req: Request,
   res: Response,
-  _: NextFunction
+  _: NextFunction,
 ) {
   const statusCode =
     "statusCode" in error && typeof error.statusCode === "number"
