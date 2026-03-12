@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { logger } from "@/lib/logger";
+import { createSseWriter, setSseHeaders } from "@/lib/sse";
 import {
   ActivitiesService,
   ProgressCallback,
@@ -17,16 +18,10 @@ export const syncActivitiesStream = async (
     const userId = req.user!.userId;
 
     // SSE headers configuration
-    res.setHeader("Content-Type", "text/event-stream"); // SSE standard
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive"); // Keep connection alive
-    res.setHeader("X-Accel-Buffering", "no"); // Disable buffering for Nginx
+    setSseHeaders(res);
 
     // Helper function to send SSE events to the client
-    const sendEvent = (event: ProgressEvent) => {
-      const message = `data: ${JSON.stringify({ type: event.type, ...event.data })}\n\n`;
-      res.write(message);
-    };
+    const sendEvent = createSseWriter<ProgressEvent>(res);
 
     // Progression callback passed to the service
     const onProgress: ProgressCallback = (event) => {
