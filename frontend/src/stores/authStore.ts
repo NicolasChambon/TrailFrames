@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import api from "@/lib/api";
-import type { User } from "@/types/auth";
+import type { User, CurrentUserResponse } from "@/types/auth";
 
 interface AuthState {
   user: User | null;
@@ -41,11 +41,11 @@ export const useAuthStore = create<AuthState>()(
           } finally {
             set({ user: null, isLoading: false });
             localStorage.removeItem("auth-storage");
-            
+
             const redirectUrl = options?.showToast
               ? `/login?toast=${options.showToast}`
               : "/";
-            
+
             window.location.href = redirectUrl;
           }
         },
@@ -57,7 +57,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true });
 
           try {
-            const response = await api.get("/auth/current-user");
+            const response = await api.get<CurrentUserResponse>(
+              "/auth/current-user",
+            );
             set({ user: response.data.user, isLoading: false });
           } catch {
             set({ user: null, isLoading: false });

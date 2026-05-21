@@ -21,27 +21,32 @@ export interface User {
   summit: boolean | null;
 }
 
+// Answer of POST /auth/login
 export interface LoginResponse {
   success: boolean;
   user: User;
 }
 
+// Answer of POST /auth/register
 export interface RegisterResponse {
   success: boolean;
   user: User;
 }
 
+// Answer of GET /auth/current-user
 export interface CurrentUserResponse {
   success: boolean;
   user: User;
 }
 
+// Answer of GET /auth/strava/callback?code=AUTH_CODE
 export interface AuthCallbackResponse {
   success: boolean;
   user: User;
   message: string;
 }
 
+// Anwer of POST /auth/logout
 export interface LogoutResponse {
   success: boolean;
   message: string;

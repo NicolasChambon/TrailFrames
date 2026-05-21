@@ -72,7 +72,7 @@ export function useActivitiesSync(): UseActivitiesSyncReturn {
 
       // Build the SSE URL with the CSRF token as a query parameter
       const apiUrl = import.meta.env.VITE_API_URL;
-      const url = `${apiUrl}/activities/sync/stream?csrf-token=${encodeURIComponent(csrf)}`;
+      const url = `${apiUrl}/activities/sync/stream?csrfToken=${encodeURIComponent(csrf)}`;
 
       // Create a new EventSource connection
       const eventSource = new EventSource(url, {

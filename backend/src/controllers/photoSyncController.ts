@@ -1,5 +1,3 @@
-// POST /activities/photos/sync
-
 import { Request, Response } from "express";
 import { logger } from "@/lib/logger";
 import { createSseWriter, setSseHeaders } from "@/lib/sse";
@@ -98,6 +96,7 @@ export const getPhotoSyncStatus = async (
 
 // GET /activities/photos
 // Paginated photos list with parent activity name and date
+// TODO: add query params for pagination, filtering, sorting (linked to the endpoint implementation)
 export const getPhotos = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
